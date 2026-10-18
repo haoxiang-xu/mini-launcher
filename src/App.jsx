@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   RiArrowLeftLine, RiArrowRightUpLine, RiCheckLine, RiCloseLine,
-  RiFolderLine, RiPlayFill, RiSettings3Line, RiShieldCheckLine,
+  RiFolderLine, RiSettings3Line, RiShieldCheckLine,
   RiToolsLine,
 } from "@remixicon/react";
 import { Button, MiniProvider } from "./mini.jsx";
@@ -87,11 +87,14 @@ function App() {
             <div className="home-center">
               <h1 className="minecraft-title" aria-label="Minecraft Mini Launcher">
                 <span className="title-main" data-text="MINECRAFT">MINECRAFT</span>
-                <span className="title-sub" data-text="MINI LAUNCHER">MINI LAUNCHER</span>
+                <span className="title-sub">MINI LAUNCHER</span>
               </h1>
-              <Button className="play-button" disabled={busy} onClick={startGame}>
-                <RiPlayFill size={22} /> 开始游戏
-              </Button>
+              <Button
+                label="开始游戏"
+                disabled={busy}
+                onClick={startGame}
+                style={{ root: { fontSize: 18, paddingVertical: 16, paddingHorizontal: 42, minWidth: 224, backgroundColor: "#151515", border: "1px solid #343434" } }}
+              />
             </div>
           </main>
         ) : (
@@ -150,7 +153,7 @@ function App() {
           </main>
         )}
 
-        <footer className="launcher-footer"><span>mini</span><span>0.1.3</span></footer>
+        <footer className="launcher-footer"><span>mini</span><span>0.1.4</span></footer>
         {notice && <div className="toast" role="status">
           <span>{notice}</span>
           <button aria-label="关闭提示" onClick={() => setNotice("")}><RiCloseLine size={17} /></button>
