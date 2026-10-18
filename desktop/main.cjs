@@ -92,7 +92,7 @@ function createWindow() {
     ...windowChromeOptions(process.platform),
     width: 1300,
     height: 840,
-    minWidth: 1000,
+    minWidth: 1280,
     minHeight: 680,
     backgroundColor: "#ece9df",
     icon: path.join(root, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
