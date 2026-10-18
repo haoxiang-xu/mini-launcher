@@ -1,7 +1,7 @@
 {
   "name": "minecraft-mini-launcher",
   "productName": "Minecraft Mini Launcher",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "mini Minecraft client pack desktop launcher",
   "author": "mini",
   "private": true,
@@ -30,7 +30,7 @@
     "appId": "studio.mini.minecraftlauncher",
     "productName": "mini",
     "directories": { "output": "release/local" },
-    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "package.json"],
+    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "src/fonts/*.txt", "package.json"],
     "extraResources": [
       { "from": "pack/local", "to": "pack", "filter": ["Mini-Local-26.3.mrpack", "manifest.json"] }
     ],

@@ -85,7 +85,10 @@ function App() {
         {page === "home" ? (
           <main className="home-screen">
             <div className="home-center">
-              <h1 className="minecraft-title">Minecraft Mini Launcher</h1>
+              <h1 className="minecraft-title" aria-label="Minecraft Mini Launcher">
+                <span className="title-main" data-text="MINECRAFT">MINECRAFT</span>
+                <span className="title-sub" data-text="MINI LAUNCHER">MINI LAUNCHER</span>
+              </h1>
               <Button className="play-button" disabled={busy} onClick={startGame}>
                 <RiPlayFill size={22} /> 开始游戏
               </Button>
@@ -147,7 +150,7 @@ function App() {
           </main>
         )}
 
-        <footer className="launcher-footer"><span>mini</span><span>0.1.2</span></footer>
+        <footer className="launcher-footer"><span>mini</span><span>0.1.3</span></footer>
         {notice && <div className="toast" role="status">
           <span>{notice}</span>
           <button aria-label="关闭提示" onClick={() => setNotice("")}><RiCloseLine size={17} /></button>

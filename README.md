@@ -2,7 +2,7 @@
 
 Local Windows MVP for the **mini** Minecraft 26.3 client pack. The desktop UI is React + the actual Mini UI source at `vendor/mini-ui`. Electron holds a small, isolated bridge for file selection, pack verification and game launch. This version delegates Microsoft sign-in, Java installation and Minecraft launching to Prism Launcher through its documented CLI.
 
-The launcher is a standalone mini product. Its black-and-white start screen uses the OFL-licensed Monocraft font, shows only the title and Play action, and keeps Prism and pack controls in Settings. It does not display the model portfolio.
+The launcher is a standalone mini product. Its black-and-white start screen uses the MIT-licensed Minecraft Titling font for the dimensional game-style heading, shows only the title and Play action, and keeps Prism and pack controls in Settings. It does not display the model portfolio. Monocraft remains available as an OFL-licensed fallback and icon font.
 
 ## What is in the local pack
 
@@ -42,7 +42,7 @@ npm run desktop
 `npm run dev` serves only the React preview at `http://127.0.0.1:5187/`; installing and launching require the Electron desktop app. Run `python scripts/make_icon.py` before packaging. `npm run package:win` produces a Windows NSIS setup program and bundles the single generated pack. On this machine the F: repository drive denied Electron Builder's directory rename, so the verified local installer was built with:
 
 ```powershell
-npx electron-builder --win nsis --x64 --config.directories.output="C:/Minecraft/Builds/build-mini-0.1.2"
+npx electron-builder --win nsis --x64 --config.directories.output="C:/Minecraft/Builds/build-mini-0.1.3"
 ```
 
 The macOS target is configured but has not been built or tested on a Mac.
