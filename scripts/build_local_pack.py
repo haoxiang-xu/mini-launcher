@@ -23,6 +23,32 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def read_pack_contents(archive: Path) -> dict:
+    """Inventory package files, excluding configuration and unrelated overrides."""
+    with ZipFile(archive) as source:
+        index = json.loads(source.read("modrinth.index.json"))
+        files = {}
+
+        def add(path, delivery):
+            folder, _, name = path.partition("/")
+            extension = {"mods": ".jar", "shaderpacks": ".zip", "resourcepacks": ".zip"}.get(folder)
+            if extension and name.lower().endswith(extension) and "/" not in name:
+                files[path] = {"path": path, "delivery": delivery}
+
+        for item in index["files"]:
+            add(item["path"], "download")
+        for member in source.namelist():
+            for prefix in ("overrides/", "client-overrides/"):
+                if member.startswith(prefix):
+                    add(member[len(prefix):], "bundled")
+        return {
+            "minecraft": index["dependencies"]["minecraft"],
+            "fabricLoader": index["dependencies"]["fabric-loader"],
+            "javaMajor": 25,
+            "files": sorted(files.values(), key=lambda item: item["path"].casefold()),
+        }
+
+
 def balanced_settings(name: str, content: bytes) -> bytes:
     desired = {
         "client-overrides/options.txt": {
@@ -88,6 +114,7 @@ def build_pack(visual_pack: Path, mods_dir: Path, output_dir: Path) -> dict:
         "javaMajor": 25,
         "officialDownloads": len(base["files"]),
         "localMods": [{"name": name, "sha256": sha256(mods_dir / name)} for name in requested],
+        "contents": read_pack_contents(archive),
         "distribution": "private-local-test-only",
         "defaultGraphics": "balanced: 12 chunk render, shaders off, PBR available but not selected",
         "knownGaps": [
@@ -97,6 +124,8 @@ def build_pack(visual_pack: Path, mods_dir: Path, output_dir: Path) -> dict:
         ],
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    if output_dir.resolve() == (ROOT / "pack/local").resolve():
+        (ROOT / "pack/contents.json").write_text(json.dumps(manifest["contents"], indent=2) + "\n", encoding="utf-8")
     return manifest
 
 

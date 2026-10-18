@@ -1,26 +1,52 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   RiArrowLeftLine, RiArrowRightUpLine, RiCheckLine, RiCloseLine,
-  RiFolderLine, RiSettings3Line, RiShieldCheckLine,
-  RiToolsLine,
+  RiFolderLine, RiShieldCheckLine, RiPlayFill, RiSettings3Line,
+  RiToolsLine, RiServerLine, RiGlobalLine, RiStackLine,
 } from "@remixicon/react";
-import { Button, MiniProvider } from "./mini.jsx";
+import { Button, MiniProvider, Tooltip } from "./mini.jsx";
 import titleArtwork from "./assets/minecraft-mini-launcher-3d.png";
+import WindowControls from "./WindowControls.jsx";
+import LauncherBackground from "./LauncherBackground.jsx";
+import ServerSettings from "./ServerSettings.jsx";
+import useServer from "./useServer.js";
+import PackageSettings from "./PackageSettings.jsx";
+import catalog from "../pack/catalog.json";
+import previewContents from "../pack/contents.json";
 
 const bridge = window.miniLauncher;
+const serverEdition = bridge ? bridge.edition === 'server' : new URLSearchParams(window.location.search).get('edition') === 'server';
+const windowInset = 12;
+const titlebarHeight = 54;
+const homeControlScale = 0.6;
 const preview = {
+  catalog,
   prismPath: null,
-  instanceRoot: "桌面程序中显示游戏实例目录",
+  prismDetection: bridge ? "checking" : "preview",
+  instanceRoot: "Available in the desktop app",
   instances: [],
-  pack: { present: false, officialDownloads: 0, localMods: 0 },
+  pack: { present: false, officialDownloads: 0, localMods: 0, contents: bridge ? null : previewContents },
+};
+
+const homeButtonStyle = {
+  root: { paddingVertical: 0, paddingHorizontal: 0, width: 56 * homeControlScale, height: 56 * homeControlScale, borderRadius: 7 * homeControlScale, backgroundColor: "transparent", border: "none" },
+  content: { children: { display: "flex", alignItems: "center", justifyContent: "center" } },
 };
 
 function App() {
-  const [page, setPage] = useState("home");
+  const [page, setPage] = useState('home');
   const [data, setData] = useState(preview);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [verification, setVerification] = useState(null);
+  const [detectingPrism, setDetectingPrism] = useState(false);
+  const [settingsSection, setSettingsSection] = useState('launcher');
+  const server = useServer(bridge, serverEdition, setNotice);
+
+  function openSettings(section = 'launcher') {
+    setSettingsSection(section);
+    setPage('settings');
+  }
 
   const refresh = useCallback(async () => {
     if (!bridge) return;
@@ -36,7 +62,7 @@ function App() {
 
   async function run(task, success) {
     if (!bridge) {
-      setNotice("网页仅供预览；安装和启动请打开桌面程序。");
+      setNotice("Preview only. Open the desktop app to install and play.");
       return;
     }
     setBusy(true);
@@ -46,43 +72,60 @@ function App() {
       if (success) setNotice(success);
       await refresh();
     } catch (error) {
-      setNotice(error.message || "操作失败");
+      setNotice(error.message || "Something went wrong.");
     } finally {
       setBusy(false);
     }
   }
 
+  async function detectInstalledPrism() {
+    if (!bridge) {
+      setNotice("Auto-detection is available in the desktop app.");
+      return;
+    }
+    setDetectingPrism(true);
+    try { setData(await bridge.detectPrism()); }
+    catch (error) { setNotice(error.message || "Unable to check for Prism Launcher."); }
+    finally { setDetectingPrism(false); }
+  }
+
   function startGame() {
     if (!bridge) {
-      setNotice("网页仅供预览；安装和启动请打开桌面程序。");
+      setNotice("Preview only. Open the desktop app to install and play.");
     } else if (!data.prismPath) {
-      setPage("settings");
-      setNotice("首次使用请先选择 Prism Launcher。");
+      openSettings();
+      setNotice("Prism Launcher was not found. Install it or choose its location.");
     } else if (!data.pack.present) {
-      setPage("settings");
-      setNotice("本地整合包尚未生成。");
+      openSettings();
+      setNotice("The local modpack is not ready yet.");
     } else if (data.instances.length) {
-      run(() => bridge.play(data.instances[0].id), "正在启动游戏");
+      run(() => bridge.play(data.instances[0].id), "Starting Minecraft...");
     } else {
-      run(() => bridge.install(), "已打开整合包导入界面");
+      run(() => bridge.install(), "Modpack import opened.");
     }
   }
 
   return (
     <MiniProvider>
-      <div className="launcher-shell">
+      <div
+        className={`launcher-shell${bridge?.windowControls ? ` desktop-shell desktop-${bridge.windowControls.platform}` : ""}`}
+        style={{ "--window-inset": `${windowInset}px`, "--titlebar-height": `${titlebarHeight}px` }}
+      >
+        <LauncherBackground />
         <header className="launcher-header">
-          <span className="header-wordmark">mini</span>
-          <button
-            className="header-control"
-            aria-label={page === "home" ? "打开设置" : "返回开始"}
-            title={page === "home" ? "设置" : "返回"}
-            onClick={() => setPage(page === "home" ? "settings" : "home")}
-          >
-            {page === "home" ? <RiSettings3Line size={21} /> : <RiCloseLine size={21} />}
-          </button>
+          <span className="header-wordmark">mini{serverEdition && <span className="header-edition">server</span>}</span>
+          <WindowControls api={bridge?.windowControls} onError={setNotice} />
         </header>
 
+        <div className="launcher-content-frame">
+          <div
+            className="launcher-content scrollable"
+            key={page}
+            tabIndex={page !== "home" ? 0 : undefined}
+            data-sb-edge-top={titlebarHeight + windowInset}
+            data-sb-edge-bottom={40}
+            data-sb-wall={5}
+          >
         {page === "home" ? (
           <main className="home-screen">
             <div className="home-center">
@@ -91,32 +134,57 @@ function App() {
                   <image href={titleArtwork} width="1920" height="1080" />
                 </svg>
               </h1>
-              <Button
-                label="开始游戏"
-                disabled={busy}
-                onClick={startGame}
-                style={{ root: { fontSize: 18, paddingVertical: 16, paddingHorizontal: 42, minWidth: 224, backgroundColor: "#151515", border: "1px solid #343434" } }}
-              />
+              <div className="home-actions">
+                <Tooltip label="Play" position="right" trigger={["hover", "focus"]}>
+                  <Button aria-label="Play" disabled={busy || data.prismDetection === "checking"} onClick={startGame} style={homeButtonStyle}>
+                    <RiPlayFill size={24 * homeControlScale} aria-hidden="true" />
+                  </Button>
+                </Tooltip>
+                <Tooltip label="Settings" position="right" trigger={["hover", "focus"]}>
+                  <Button aria-label="Settings" onClick={() => openSettings()} style={homeButtonStyle}>
+                    <RiSettings3Line size={24 * homeControlScale} aria-hidden="true" />
+                  </Button>
+                </Tooltip>
+              </div>
             </div>
           </main>
         ) : (
-          <main className="settings-screen">
-            <button className="back-link" onClick={() => setPage("home")}>
-              <RiArrowLeftLine size={18} /> 返回
+          <main className="settings-screen settings-with-sidebar">
+            <button className="back-link" onClick={() => setPage('home')}>
+              <RiArrowLeftLine size={18} /> Back
             </button>
-            <h1>设置</h1>
-            <p className="settings-intro">游戏安装在独立目录中。</p>
-
-            <section className="settings-list" aria-label="启动器设置">
+            <h1>Settings</h1>
+            <div className="settings-layout">
+              <nav className="settings-sidebar" aria-label="Settings sections">
+                {[
+                  {id:'launcher', label:'Launcher', Icon:RiToolsLine},
+                  {id:'packages', label:'Packages', Icon:RiStackLine},
+                  ...(serverEdition ? [
+                  {id:'server', label:'Server', Icon:RiServerLine},
+                  {id:'playit', label:'playit', Icon:RiGlobalLine},
+                  ] : []),
+                ].map(({id,label,Icon}) => <Button key={id} aria-pressed={settingsSection === id} onClick={()=>setSettingsSection(id)} style={{
+                  root:{width:'100%',justifyContent:'flex-start',fontSize:14,paddingVertical:10,paddingHorizontal:13,lineHeight:'20px',color:settingsSection===id?'#263522':'#5c6954',backgroundColor:settingsSection===id?'#faf9f1c4':'transparent'},
+                  content:{children:{display:'flex',alignItems:'center',gap:10,lineHeight:'20px'}},
+                }}><Icon size={17} aria-hidden="true"/><span>{label}</span></Button>)}
+              </nav>
+              <div className="settings-panels">
+            <section className="settings-list settings-panel" hidden={settingsSection !== 'launcher'} aria-label="Launcher settings">
               <div className="setting-row">
                 <div className="setting-icon"><RiToolsLine size={20} /></div>
                 <div className="setting-main">
-                  <h2>启动核心</h2>
-                  <p>使用 Prism 登录 Microsoft 账号并启动 Minecraft。</p>
-                  <div className="path-value">{data.prismPath || "尚未选择 Prism Launcher"}</div>
+                  <h2>Prism Launcher</h2>
+                  <p>Sign in with Microsoft and launch Minecraft through Prism.</p>
+                  <div className="prism-detection" role="status">
+                    {detectingPrism || data.prismDetection === "checking" ? "Searching for Prism Launcher…"
+                      : data.prismPath ? data.prismDetection === "saved" ? "Using your selected launcher" : "Detected automatically"
+                      : data.prismDetection === "preview" ? "Auto-detection runs in the desktop app" : "Prism Launcher not found"}
+                  </div>
+                  {data.prismPath && <div className="path-value">{data.prismPath}</div>}
                   <div className="setting-actions">
-                    <Button label="选择程序" onClick={() => run(() => bridge.selectPrism())} />
-                    <button onClick={() => run(() => bridge.downloadPrism())}>官方下载 <RiArrowRightUpLine size={15} /></button>
+                    <Button label={detectingPrism ? "Searching…" : "Auto-detect"} disabled={busy || detectingPrism || data.prismDetection === "checking"} onClick={detectInstalledPrism} />
+                    <button disabled={busy || detectingPrism} onClick={() => run(() => bridge.selectPrism())}>Choose manually</button>
+                    <button onClick={() => run(() => bridge.downloadPrism())}>Download Prism <RiArrowRightUpLine size={15} /></button>
                   </div>
                 </div>
               </div>
@@ -124,11 +192,11 @@ function App() {
               <div className="setting-row">
                 <div className="setting-icon"><RiFolderLine size={20} /></div>
                 <div className="setting-main">
-                  <h2>游戏实例目录</h2>
-                  <p>整合包和存档保存在独立实例中。</p>
+                  <h2>Game folder</h2>
+                  <p>Modpacks and saves are stored in separate instances.</p>
                   <div className="path-value">{data.instanceRoot}</div>
                   <div className="setting-actions">
-                    <Button label="更改目录" onClick={() => run(() => bridge.selectRoot())} />
+                    <Button label="Change folder" onClick={() => run(() => bridge.selectRoot())} />
                   </div>
                 </div>
               </div>
@@ -136,15 +204,16 @@ function App() {
               <div className="setting-row">
                 <div className="setting-icon"><RiShieldCheckLine size={20} /></div>
                 <div className="setting-main">
-                  <h2>游戏文件</h2>
-                  <p>{data.pack.present ? "本地整合包已就绪" : "等待本地整合包"}</p>
+                  <h2>Game files</h2>
+                  <p>{data.pack.present ? "Local modpack ready" : "Waiting for the local modpack"}</p>
                   <div className="setting-actions">
-                    <Button label="校验文件" onClick={() => run(async () => {
+                    <Button label="Verify files" onClick={() => run(async () => {
                       const result = await bridge.verify();
                       setVerification(result);
                       return result;
-                    }, "文件校验通过")} />
-                    <button onClick={() => run(() => bridge.openPackFolder())}>打开目录 <RiArrowRightUpLine size={15} /></button>
+                    }, "Files verified.")} />
+                    <button onClick={() => run(() => bridge.openPackFolder())}>Open folder <RiArrowRightUpLine size={15} /></button>
+                    <button onClick={() => setSettingsSection('packages')}>View packages <RiArrowRightUpLine size={15} /></button>
                   </div>
                   {verification && <small className={verification.ok ? "verified" : "failed"}>
                     {verification.ok && <RiCheckLine size={14} />} {verification.message}
@@ -152,13 +221,19 @@ function App() {
                 </div>
               </div>
             </section>
+                <PackageSettings pack={data.pack} catalog={data.catalog} preview={!bridge} hidden={settingsSection !== 'packages'}/>
+                {serverEdition && <ServerSettings server={server} section={settingsSection} bridge={bridge} client={data} onNotice={setNotice} onLauncherSettings={()=>setSettingsSection('launcher')}/>}
+              </div>
+            </div>
           </main>
         )}
 
+          </div>
+        </div>
         <footer className="launcher-footer"><span>mini</span><span>0.1.4</span></footer>
         {notice && <div className="toast" role="status">
           <span>{notice}</span>
-          <button aria-label="关闭提示" onClick={() => setNotice("")}><RiCloseLine size={17} /></button>
+          <button aria-label="Dismiss notification" onClick={() => setNotice("")}><RiCloseLine size={17} /></button>
         </div>}
       </div>
     </MiniProvider>

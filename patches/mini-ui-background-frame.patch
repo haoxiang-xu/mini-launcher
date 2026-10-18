@@ -1,0 +1,34 @@
+diff --git a/src/BUILTIN_COMPONENTs/background/shader_blob_background/shader_blob_background.js b/src/BUILTIN_COMPONENTs/background/shader_blob_background/shader_blob_background.js
+index 027f374..eaa250d 100644
+--- a/src/BUILTIN_COMPONENTs/background/shader_blob_background/shader_blob_background.js
++++ b/src/BUILTIN_COMPONENTs/background/shader_blob_background/shader_blob_background.js
+@@ -306,7 +306,9 @@ const ShaderBlobBackground = ({
+     const root   = rootRef.current;
+     if (!canvas || !root) return;
+ 
+-    const gl = canvas.getContext("webgl2", { antialias: true, alpha: false });
++    // CSS blur/compositing may repaint between animation frames. Retain the
++    // last image instead of exposing WebGL's cleared drawing buffer.
++    const gl = canvas.getContext("webgl2", { antialias: true, alpha: false, preserveDrawingBuffer: true });
+     if (!gl) { setFailed(true); return; }
+ 
+     const compile = (type, src) => {
+@@ -374,8 +376,8 @@ const ShaderBlobBackground = ({
+       gl.uniform2f(U.uRes, w, h);
+     };
+ 
+-    const ro = new ResizeObserver(resize);
+-    ro.observe(root);
++    // Later size changes are applied inside loop(), immediately before drawing.
++    // A ResizeObserver runs after rAF and could otherwise present a blank canvas.
+     resize();
+ 
+     // Pause the render loop when the element is off-screen.
+@@ -453,7 +455,6 @@ const ShaderBlobBackground = ({
+ 
+     return () => {
+       cancelAnimationFrame(rafRef.current);
+-      ro.disconnect();
+       io.disconnect();
+       gl.deleteBuffer(vbo);
+       gl.deleteProgram(prog);

@@ -1,15 +1,15 @@
-"""Draw the mini wordmark icon for the Windows launcher."""
+"""Convert the selected Minecraft Launcher icon to platform icon formats."""
 from pathlib import Path
+from shutil import copyfile
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build"
 OUT.mkdir(exist_ok=True)
-image = Image.new("RGBA", (256, 256), "#0a0a0a")
-draw = ImageDraw.Draw(image)
-draw.rounded_rectangle((15, 15, 241, 241), radius=28, outline="#f5f5f5", width=5)
-font = ImageFont.truetype(str(ROOT / "src/fonts/Monocraft-Bold.ttf"), 60)
-draw.text((128, 128), "mini", anchor="mm", font=font, fill="#f5f5f5")
-image.save(OUT / "icon.png")
-image.save(OUT / "icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+source = ROOT / "src/assets/minecraft-launcher-icon.png"
+copyfile(source, OUT / "icon.png")
+with Image.open(source) as original:
+    image = original.convert("RGBA")
+    image.save(OUT / "icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+    image.resize((1024, 1024), Image.Resampling.NEAREST).save(OUT / "icon.icns")

@@ -1,0 +1,72 @@
+.launcher-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 83% 15%, #d8e6ca 0%, transparent 64%),
+    radial-gradient(ellipse at 12% 92%, #e2e8d5 0%, transparent 60%),
+    #ece9df;
+}
+
+/* Soft gradient stops supply the blur without a filtered WebGL surface.
+   Only the positions move; opacity and the underlying image stay constant. */
+.launcher-mesh {
+  position: absolute;
+  inset: -20%;
+  transform-origin: center;
+  will-change: transform;
+  animation: mesh-primary-drift 24s ease-in-out infinite alternate;
+}
+
+.launcher-mesh-primary {
+  background: radial-gradient(
+    ellipse 48% 34% at 77% 26%,
+    #6cc34994 0%,
+    #4c9b3970 24%,
+    #76aa5a40 48%,
+    #a0c48618 65%,
+    #a0c48600 82%
+  );
+  animation-delay: -12s;
+}
+
+.launcher-mesh-secondary {
+  background: radial-gradient(
+    ellipse 45% 32% at 25% 78%,
+    #76ae5980 0%,
+    #8db56d60 28%,
+    #b0c59230 52%,
+    #c8d4b300 80%
+  );
+  animation-name: mesh-secondary-drift;
+  animation-duration: 32s;
+  animation-delay: -24s;
+}
+
+.launcher-background-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 44% 48% at 50% 51%, #f4f0e638, transparent 100%),
+    linear-gradient(180deg, #eeeade1a, transparent 30%, transparent 70%, #eeeade38);
+}
+
+@keyframes mesh-primary-drift {
+  from { transform: translate3d(-6%, 4%, 0) rotate(-8deg) scale(1.04); }
+  to { transform: translate3d(6%, -5%, 0) rotate(7deg) scale(1.12); }
+}
+
+@keyframes mesh-secondary-drift {
+  from { transform: translate3d(6%, -4%, 0) rotate(6deg) scale(1.08); }
+  to { transform: translate3d(-6%, 5%, 0) rotate(-6deg) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher-mesh {
+    animation: none;
+    will-change: auto;
+  }
+}

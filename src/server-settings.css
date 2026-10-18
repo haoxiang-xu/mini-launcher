@@ -1,0 +1,30 @@
+.server-settings-panel button svg { display:block; flex:none; }
+.server-settings-panel .server-card h3 { margin:0; font-size:14px; color:#2f3c29; }
+.server-settings-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.server-settings-panel > .server-card + .server-card { margin-top:14px; }
+.server-status { display:inline-flex; align-items:center; gap:8px; font-size:12px; color:#526049; }
+.server-status i { width:7px; height:7px; background:#929a8c; border-radius:50%; }
+.status-running i { background:#3c8527; }.status-error i { background:#b56845; }.status-starting i,.status-preparing i,.status-stopping i { background:#b19b4b; }
+.server-profile-tabs { display:inline-flex; padding:4px; gap:4px; border-radius:8px; background:#34412f0c; margin-bottom:22px; }
+.server-profile-tabs button { padding:8px 16px; border:0; border-radius:5px; background:transparent; color:#526049; font-size:13px; }
+.server-profile-tabs button[aria-pressed=true] { background:#f8f8f0; color:#263522; box-shadow:0 1px 4px #34412f12; }
+.server-card { background:#faf9f1c4; border:1px solid #34412f1a; border-radius:10px; padding:21px; min-width:0; }
+.server-card-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.server-card-heading>span { font-size:11px; color:#64715c; }.server-hint { font-size:12px; line-height:1.6; color:#5c6954; margin:10px 0; }
+.server-address { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding:4px 0; }.server-address code { font-size:16px; letter-spacing:-0.4px; color:#34412f; }
+.server-settings-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:20px 0 14px; }
+.server-settings-fields label,.server-public-address { display:grid; gap:7px; font-size:12px; color:#526049; }
+.server-card input:not([type=checkbox]) { min-width:0; width:100%; height:34px; border:1px solid #34412f25; border-radius:6px; background:#ffffff70; padding:6px 10px; color:#34412f; font:inherit; font-size:13px; }
+.server-card input:focus { outline:2px solid #3c852765; outline-offset:1px; }.server-card input:disabled { opacity:0.5; }
+.server-java { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center; font-size:12px; }.server-path { font-size:11px; color:#64715c; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+.server-actions { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:12px; }
+.server-config-divider { border-top:1px solid #34412f15; margin-top:22px; }
+.server-eula { display:flex; flex-direction:column; align-items:flex-start; gap:5px; margin-top:18px; font-size:12px; }.server-eula label { display:flex; align-items:center; gap:7px; }.server-eula input { accent-color:#3c8527; }.server-eula button { border:0; background:none; color:#3c752c; font-size:12px; padding:4px 0; }
+.server-error { font-size:12px; color:#854a38; line-height:1.5; overflow-wrap:anywhere; }.server-preview-note { font-size:12px; color:#6a775c; }.server-backup { display:flex; justify-content:space-between; align-items:center; gap:12px; }.server-backup p { margin-bottom:0; }
+.server-console-details { padding:0; overflow:hidden; }
+.server-console-details > summary { padding:18px 21px; cursor:pointer; font-size:14px; font-weight:700; color:#2f3c29; }
+.server-console-details > summary:focus-visible { outline:2px solid #3c8527; outline-offset:-4px; border-radius:10px; }
+.server-console { height:280px; overflow:auto; border-top:1px solid #34412f12; padding:16px 18px; font:11px/1.7 Consolas,monospace; background:#ffffff30; }
+.server-console>div { display:grid; grid-template-columns:54px 1fr; gap:8px; overflow-wrap:anywhere; white-space:pre-wrap; }.server-console time { color:#87907e; font-size:10px; }.server-console>p { color:#87907e; }
+.server-command { display:flex; border-top:1px solid #34412f15; align-items:center; padding:8px 12px; gap:6px; }.server-command input:not([type=checkbox]) { background:transparent; border:0; font-size:12px; }.server-command button { display:grid; place-items:center; border:0; border-radius:5px; width:30px; height:30px; background:transparent; color:#526049; }.server-command button:disabled { opacity:0.35; }.server-command button:hover:enabled { background:#34412f0c; }
+.server-public-address { margin-top:16px; }.header-edition { margin-left:8px; font-size:11px; font-weight:400; color:#64715c; }

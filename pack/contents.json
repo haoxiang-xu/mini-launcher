@@ -1,0 +1,75 @@
+{
+  "minecraft": "26.3",
+  "fabricLoader": "0.19.5",
+  "javaMajor": 25,
+  "files": [
+    {
+      "path": "mods/EC-Furniture-Blocks-2.17.5+26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/fabric-api-0.161.0+26.3.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/fabric-language-kotlin-1.14.2+kotlin.2.4.21.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/fzzy_config-0.7.7+fix3+26.3.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/iris-fabric-1.11.7+mc26.3.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/lithostitched-2.0.4-fabric-26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/modmenu-21.0.0.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/Mona-Lisa-Painting-1.1.0+26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/particle_core-0.3.3+fix1+26.2.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/PTS-Deco-15.0-Fabric26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/SkniroFurniture-1.6.1-26.3-Fabric.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/sodium-fabric-0.9.2+mc26.3.jar",
+      "delivery": "download"
+    },
+    {
+      "path": "mods/tectonic-3.0.31-fabric-26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/YOHaku-Elevator-1.2.3+26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "mods/YOHaku-Furniture-Manager-1.1.0+26.3.jar",
+      "delivery": "bundled"
+    },
+    {
+      "path": "resourcepacks/VibrantPBR-R1.15.zip",
+      "delivery": "download"
+    },
+    {
+      "path": "shaderpacks/BSL_v10.1.8.zip",
+      "delivery": "download"
+    }
+  ]
+}

@@ -58,6 +58,26 @@ class BuildLocalPackTests(unittest.TestCase):
                 MODULE.build_pack(visual, mods, root / "out")
             self.assertFalse((root / "out").exists())
 
+    def test_manifest_lists_downloads_and_bundled_packages_without_settings_files(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            visual, mods, names = self.make_fixture(root)
+            with ZipFile(visual, "a") as archive:
+                archive.writestr("client-overrides/shaderpacks/demo.zip", b"shader")
+                archive.writestr("client-overrides/shaderpacks/demo.zip.txt", b"settings")
+                archive.writestr("overrides/resourcepacks/textures.zip", b"textures")
+            manifest = MODULE.build_pack(visual, mods, root / "out")
+            contents = manifest["contents"]
+            entries = {entry["path"]: entry["delivery"] for entry in contents["files"]}
+            self.assertEqual(contents["minecraft"], "26.3")
+            self.assertEqual(contents["fabricLoader"], "0.19.5")
+            self.assertEqual(entries, {
+                "mods/fabric-api.jar": "download",
+                **{"mods/" + name: "bundled" for name in names},
+                "shaderpacks/demo.zip": "bundled",
+                "resourcepacks/textures.zip": "bundled",
+            })
+
 
 if __name__ == "__main__":
     unittest.main()

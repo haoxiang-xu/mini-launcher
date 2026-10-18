@@ -3,6 +3,7 @@ dist/
 out/
 release/
 pack/local/
+pack/server-local/
 vendor/mini-ui-incomplete/
 *.log
 __pycache__/

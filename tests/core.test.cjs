@@ -15,7 +15,7 @@ test("pack verifier detects tampering before import", () => {
     fs.writeFileSync(manifest, JSON.stringify({ pack: "demo.mrpack", packSha256: crypto.createHash("sha256").update("valid archive bytes").digest("hex") }));
     assert.equal(verifyPack(pack, manifest).ok, true);
     fs.writeFileSync(pack, "different archive bytes");
-    assert.deepEqual(verifyPack(pack, manifest), { ok: false, message: "整合包校验失败" });
+    assert.deepEqual(verifyPack(pack, manifest), { ok: false, message: "Modpack verification failed." });
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 

@@ -1,0 +1,9 @@
+Minecraft Launcher application icon
+
+Source: locally installed official Minecraft Launcher, package Microsoft.4297127D64EC6 2.6.2.0.
+Original file: C:/XboxGames/Minecraft Launcher/Content/SmallLogo.altform-unplated_targetsize-256.png
+Copied on: 2026-10-18, at the user's explicit request.
+Artwork owner: Mojang / Microsoft. This is their existing icon, not mini artwork.
+
+src/assets/minecraft-launcher-icon.png and build/icon.png retain the original PNG bytes.
+scripts/make_icon.py converts this source to Windows ICO and macOS ICNS containers.

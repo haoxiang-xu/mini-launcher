@@ -1,0 +1,2 @@
+# Keep portable Git patches unchanged; blank context lines contain one space.
+patches/*.patch text eol=lf whitespace=-blank-at-eol
