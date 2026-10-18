@@ -2,7 +2,7 @@
 
 Local Windows MVP for the **mini** Minecraft 26.3 client pack. The desktop UI is React + the actual Mini UI source at `vendor/mini-ui`. Electron holds a small, isolated bridge for file selection, pack verification and game launch. This version delegates Microsoft sign-in, Java installation and Minecraft launching to Prism Launcher through its documented CLI.
 
-The launcher is a standalone mini product. Its black-and-white start screen uses the MIT-licensed Minecraft Titling font for the dimensional game-style heading, shows only the title and Play action, and keeps Prism and pack controls in Settings. It does not display the model portfolio. Monocraft remains available as an OFL-licensed fallback and icon font.
+The launcher is a standalone mini product. Its black-and-white start screen uses a transparent render of Minecraft Ten and Minecraft Five Bold 3D letter models for the heading, with an actual Mini UI Button for the Play action. The title's perspective and side faces are part of the rendered artwork; the page does not approximate them with CSS text shadows. Source credits and render settings are recorded in `src/assets/TITLE-SOURCE.txt`. Prism and pack controls live in Settings.
 
 ## What is in the local pack
 

@@ -30,7 +30,7 @@
     "appId": "studio.mini.minecraftlauncher",
     "productName": "mini",
     "directories": { "output": "release/local" },
-    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "src/fonts/*.txt", "package.json"],
+    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "src/fonts/*.txt", "src/assets/*.txt", "package.json"],
     "extraResources": [
       { "from": "pack/local", "to": "pack", "filter": ["Mini-Local-26.3.mrpack", "manifest.json"] }
     ],

@@ -5,6 +5,7 @@ import {
   RiToolsLine,
 } from "@remixicon/react";
 import { Button, MiniProvider } from "./mini.jsx";
+import titleArtwork from "./assets/minecraft-mini-launcher-3d.png";
 
 const bridge = window.miniLauncher;
 const preview = {
@@ -86,8 +87,9 @@ function App() {
           <main className="home-screen">
             <div className="home-center">
               <h1 className="minecraft-title" aria-label="Minecraft Mini Launcher">
-                <span className="title-main" data-text="MINECRAFT">MINECRAFT</span>
-                <span className="title-sub">MINI LAUNCHER</span>
+                <svg viewBox="65 346 1741 364" aria-hidden="true" focusable="false">
+                  <image href={titleArtwork} width="1920" height="1080" />
+                </svg>
               </h1>
               <Button
                 label="开始游戏"
