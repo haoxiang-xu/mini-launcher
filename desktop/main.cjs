@@ -62,7 +62,7 @@ function createWindow() {
     height: 840,
     minWidth: 1000,
     minHeight: 680,
-    backgroundColor: "#111210",
+    backgroundColor: "#0a0a0a",
     title: "Minecraft Mini Launcher",
     autoHideMenuBar: true,
     webPreferences: {

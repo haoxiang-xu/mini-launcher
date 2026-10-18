@@ -7,18 +7,10 @@ const base = defaults.dark_mode;
 const font = '"Nunito Sans", "Microsoft YaHei", system-ui, sans-serif';
 const theme = {
   ...base,
-  color: "#edf0e9",
-  backgroundColor: "#151715",
-  font: { ...base.font, fontFamily: font, fontSize: 14 },
+  font: { ...base.font, fontFamily: font },
   button: {
     ...base.button,
-    root: { ...base.button.root, fontFamily: font, fontSize: 14, borderRadius: 9, color: "#d9ded5" },
-  },
-  modal: {
-    ...base.modal,
-    backgroundColor: "#1b1e1a",
-    border: "1px solid #3a4038",
-    borderRadius: 14,
+    root: { ...base.button.root, fontFamily: font },
   },
 };
 
