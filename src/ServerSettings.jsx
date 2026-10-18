@@ -75,8 +75,8 @@ export default function ServerSettings({ server, section, bridge, client, onNoti
         <h3>Play here</h3><p className="server-hint">Launch a matching client and join this server.</p>
         {client.instances.length > 0 ? <Select options={client.instances.map(item => ({ label: item.name, value: item.id }))} value={instance} set_value={setInstance} filterable={false} style={{ fontSize: 13, width: '100%' }}/> : <p className="server-hint">No client instance is installed yet.</p>}
         <div className="server-actions">
-          <Button style={compact} label="Launch & join" disabled={busy || !running || !instance || !client.prismPath} onClick={() => act(() => api.join(selected, instance))}/>
-          {!client.prismPath ? <Button style={compact} label="Set up Prism" onClick={onLauncherSettings}/> : !client.instances.length && <Button style={compact} label="Install client pack" onClick={() => act(() => bridge.install())}/>}
+          <Button style={compact} label="Launch & join" disabled={busy || !running || !instance || !client.engine?.available || !client.engine?.accounts.length} onClick={() => act(() => api.join(selected, instance))}/>
+          {!client.engine?.accounts.length ? <Button style={compact} label="Sign in to play" onClick={onLauncherSettings}/> : !client.instances.length && <Button style={compact} label="Install client pack" onClick={() => act(() => bridge.install())}/>}
         </div>
       </div>
       <div className="server-card server-backup"><div><h3>World backup</h3><p className="server-hint">Stop the server before saving a backup.</p></div><Button style={compact} label="Back up" disabled={busy || locked} onClick={() => act(async () => { const result = await api.backup(selected); onNotice(`Backup saved: ${result.path}`); })}/></div>

@@ -11,6 +11,7 @@ import LauncherBackground from "./LauncherBackground.jsx";
 import ServerSettings from "./ServerSettings.jsx";
 import useServer from "./useServer.js";
 import PackageSettings from "./PackageSettings.jsx";
+import { AccountSettings, EngineProgress, SignInModal } from './GameSession.jsx';
 import catalog from "../pack/catalog.json";
 import previewContents from "../pack/contents.json";
 
@@ -21,8 +22,7 @@ const titlebarHeight = 54;
 const homeControlScale = 0.6;
 const preview = {
   catalog,
-  prismPath: null,
-  prismDetection: bridge ? "checking" : "preview",
+  engine: { available: false, phase: bridge ? 'connecting' : 'preview', accounts: [], instances: [], loginConfigured: false, authorization: null, progress: null, error: '' },
   instanceRoot: "Available in the desktop app",
   instances: [],
   pack: { present: false, officialDownloads: 0, localMods: 0, contents: bridge ? null : previewContents },
@@ -39,7 +39,6 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [verification, setVerification] = useState(null);
-  const [detectingPrism, setDetectingPrism] = useState(false);
   const [settingsSection, setSettingsSection] = useState('launcher');
   const server = useServer(bridge, serverEdition, setNotice);
 
@@ -59,6 +58,9 @@ function App() {
     const timer = window.setInterval(refresh, 4000);
     return () => window.clearInterval(timer);
   }, [refresh]);
+  useEffect(() => bridge?.engine?.onStateChange(engine => setData(current => ({ ...current, engine, instances: engine.instances || [] }))), []);
+  const engine = data.engine || preview.engine;
+  const engineWorking = ['login', 'install', 'launch', 'playing'].includes(engine.phase);
 
   async function run(task, success) {
     if (!bridge) {
@@ -78,30 +80,28 @@ function App() {
     }
   }
 
-  async function detectInstalledPrism() {
-    if (!bridge) {
-      setNotice("Auto-detection is available in the desktop app.");
-      return;
-    }
-    setDetectingPrism(true);
-    try { setData(await bridge.detectPrism()); }
-    catch (error) { setNotice(error.message || "Unable to check for Prism Launcher."); }
-    finally { setDetectingPrism(false); }
-  }
-
   function startGame() {
     if (!bridge) {
       setNotice("Preview only. Open the desktop app to install and play.");
-    } else if (!data.prismPath) {
+    } else if (!engine.available) {
       openSettings();
-      setNotice("Prism Launcher was not found. Install it or choose its location.");
+      setNotice("The game component is unavailable. Please restart Mini.");
+    } else if (!engine.accounts.length) {
+      openSettings();
+      if (engine.loginConfigured) run(() => bridge.engine.login());
+      else setNotice("Microsoft sign-in is being configured for this build.");
     } else if (!data.pack.present) {
       openSettings();
       setNotice("The local modpack is not ready yet.");
     } else if (data.instances.length) {
-      run(() => bridge.play(data.instances[0].id), "Starting Minecraft...");
+      run(() => bridge.play(data.instances[0].id));
     } else {
-      run(() => bridge.install(), "Modpack import opened.");
+      run(async () => {
+        await bridge.install();
+        const installed = await bridge.status();
+        if (!installed.instances.length) throw new Error('Your game could not be prepared. Please retry.');
+        return bridge.play(installed.instances[0].id);
+      });
     }
   }
 
@@ -119,7 +119,7 @@ function App() {
 
         <div className="launcher-content-frame">
           <div
-            className="launcher-content scrollable"
+            className={`launcher-content${page === 'home' ? '' : ' launcher-content-settings'}`}
             key={page}
             tabIndex={page !== "home" ? 0 : undefined}
             data-sb-edge-top={titlebarHeight + windowInset}
@@ -136,7 +136,7 @@ function App() {
               </h1>
               <div className="home-actions">
                 <Tooltip label="Play" position="right" trigger={["hover", "focus"]}>
-                  <Button aria-label="Play" disabled={busy || data.prismDetection === "checking"} onClick={startGame} style={homeButtonStyle}>
+                  <Button aria-label="Play" disabled={busy || engineWorking || engine.phase === 'connecting'} onClick={startGame} style={homeButtonStyle}>
                     <RiPlayFill size={24 * homeControlScale} aria-hidden="true" />
                   </Button>
                 </Tooltip>
@@ -168,26 +168,9 @@ function App() {
                   content:{children:{display:'flex',alignItems:'center',gap:10,lineHeight:'20px'}},
                 }}><Icon size={17} aria-hidden="true"/><span>{label}</span></Button>)}
               </nav>
-              <div className="settings-panels">
+              <div className="settings-panels scrollable" tabIndex={0} data-sb-wall={5} aria-label="Settings content">
             <section className="settings-list settings-panel" hidden={settingsSection !== 'launcher'} aria-label="Launcher settings">
-              <div className="setting-row">
-                <div className="setting-icon"><RiToolsLine size={20} /></div>
-                <div className="setting-main">
-                  <h2>Prism Launcher</h2>
-                  <p>Sign in with Microsoft and launch Minecraft through Prism.</p>
-                  <div className="prism-detection" role="status">
-                    {detectingPrism || data.prismDetection === "checking" ? "Searching for Prism Launcher…"
-                      : data.prismPath ? data.prismDetection === "saved" ? "Using your selected launcher" : "Detected automatically"
-                      : data.prismDetection === "preview" ? "Auto-detection runs in the desktop app" : "Prism Launcher not found"}
-                  </div>
-                  {data.prismPath && <div className="path-value">{data.prismPath}</div>}
-                  <div className="setting-actions">
-                    <Button label={detectingPrism ? "Searching…" : "Auto-detect"} disabled={busy || detectingPrism || data.prismDetection === "checking"} onClick={detectInstalledPrism} />
-                    <button disabled={busy || detectingPrism} onClick={() => run(() => bridge.selectPrism())}>Choose manually</button>
-                    <button onClick={() => run(() => bridge.downloadPrism())}>Download Prism <RiArrowRightUpLine size={15} /></button>
-                  </div>
-                </div>
-              </div>
+              <AccountSettings engine={engine} onSignIn={() => run(() => bridge.engine.login())} onSignOut={id => run(() => bridge.engine.logout(id))}/>
 
               <div className="setting-row">
                 <div className="setting-icon"><RiFolderLine size={20} /></div>
@@ -196,7 +179,7 @@ function App() {
                   <p>Modpacks and saves are stored in separate instances.</p>
                   <div className="path-value">{data.instanceRoot}</div>
                   <div className="setting-actions">
-                    <Button label="Change folder" onClick={() => run(() => bridge.selectRoot())} />
+                    <Button label="Change folder" disabled={engineWorking} onClick={() => run(() => bridge.selectRoot())} />
                   </div>
                 </div>
               </div>
@@ -236,6 +219,8 @@ function App() {
           <button aria-label="Dismiss notification" onClick={() => setNotice("")}><RiCloseLine size={17} /></button>
         </div>}
       </div>
+      <EngineProgress engine={engine} onCancel={() => run(() => bridge.engine.cancel())}/>
+      <SignInModal engine={engine} onOpenBrowser={() => run(() => bridge.engine.openAuthorization())} onCancel={() => run(() => bridge.engine.cancel())}/>
     </MiniProvider>
   );
 }

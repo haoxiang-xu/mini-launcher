@@ -1,14 +1,14 @@
 const { app, BrowserWindow, dialog, ipcMain, shell, clipboard } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
-const { spawn } = require("node:child_process");
-const { isPrismExecutable, readInstances, verifyPack, prismArgs } = require("./core.cjs");
-const { createPrismDetector } = require("./prism-discovery.cjs");
+const { engineExecutable } = require('./engine-bundle.cjs');
+const { verifyPack } = require("./core.cjs");
+const { createEngineController, registerEngineIpc, assertEngineSender } = require("./engine-controller.cjs");
 const { windowChromeOptions, registerWindowControls, observeWindowState } = require("./window-controls.cjs");
 
 const root = path.resolve(__dirname, "..");
+const runtimeIcon = path.join(root, 'build', process.platform === 'darwin' ? 'icon-mac.png' : process.platform === 'win32' ? 'icon.ico' : 'icon.png');
 const catalog = require("../pack/catalog.json");
-const detectPrism = createPrismDetector();
 const { editionFor } = require("./edition.cjs");
 const edition = editionFor({packaged:app.isPackaged,metadata:require('../package.json'),argv:process.argv});
 let mainWindow, serverController, quitting = false, quitPending = false;
@@ -37,9 +37,24 @@ function instanceRoot(settings = readSettings()) {
   return settings.instanceRoot || path.join(app.getPath("userData"), "PrismData");
 }
 
-async function status(refreshPrism = false) {
-  const settings = readSettings();
-  const prism = await detectPrism(settings.prismPath, { refresh: refreshPrism });
+let engine, engineRoot;
+function getEngine() {
+  const folder = instanceRoot();
+  if (!engine || engineRoot !== folder) {
+    engine?.close();
+    fs.mkdirSync(folder, { recursive: true, mode: 0o700 });
+    const config = require('../build/engine-config.json');
+    const resources = app.isPackaged ? path.join(process.resourcesPath, 'backend') : path.join(root, 'runtime', 'backend', process.platform);
+    const binary = engineExecutable(resources);
+    engine = createEngineController({ file: binary, dataRoot: folder, clientId: process.env.MINI_MICROSOFT_CLIENT_ID || config.microsoftClientId || '' });
+    engineRoot = folder;
+    engine.on('state', state => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('engine:state', state); });
+  }
+  return engine;
+}
+
+async function status() {
+  const engineState = await getEngine().status();
   const folder = packFolder();
   const manifestPath = path.join(folder, "manifest.json");
   let manifest = null;
@@ -48,10 +63,9 @@ async function status(refreshPrism = false) {
     appName: "Minecraft Mini Launcher",
     edition,
     catalog,
-    prismPath: prism.path,
-    prismDetection: prism.source,
-    instanceRoot: instanceRoot(settings),
-    instances: readInstances(instanceRoot(settings)),
+    engine: engineState,
+    instanceRoot: instanceRoot(),
+    instances: engineState.instances,
     pack: {
       present: Boolean(manifest && fs.existsSync(path.join(folder, manifest.pack))),
       filename: manifest?.pack || null,
@@ -64,19 +78,11 @@ async function status(refreshPrism = false) {
   };
 }
 
-function startPrism(binary, args) {
-  return new Promise((resolve,reject)=>{
-    const child = spawn(binary, args, { detached: true, stdio: "ignore", windowsHide: false });
-    child.once('error',reject);
-    child.once('spawn',()=>{child.unref();resolve({ok:true,message:'Sent to Prism Launcher.'});});
-  });
-}
-
 async function launchClient(instanceId, serverAddress) {
-  const current=await status();
-  if(!current.prismPath)throw new Error('Choose Prism Launcher in Settings first.');
-  if(!current.instances.some(i=>i.id===instanceId))throw new Error('No installed game instance found.');
-  return startPrism(current.prismPath,prismArgs(current.instanceRoot,'launch',instanceId,serverAddress));
+  const current = await status();
+  if (!current.engine.available) throw new Error('游戏组件暂时不可用。');
+  if (!current.instances.some(item => item.id === instanceId)) throw new Error('游戏尚未安装。');
+  return getEngine().launch(instanceId, serverAddress);
 }
 
 async function requestQuit() {
@@ -95,7 +101,7 @@ function createWindow() {
     minWidth: 1280,
     minHeight: 680,
     backgroundColor: "#ece9df",
-    icon: path.join(root, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
+    icon: runtimeIcon,
     title: edition === 'server' ? 'Minecraft Mini Launcher — Server' : 'Minecraft Mini Launcher',
     autoHideMenuBar: true,
     webPreferences: {
@@ -120,10 +126,11 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   if(!ownsInstance)return;
-  if(process.platform==='darwin')app.dock.setIcon(path.join(root,'build','icon.png'));
+  // Packaged Mac apps use their original multi-resolution ICNS through Launch
+  // Services. Replacing it with a PNG loses the native small-icon artwork.
+  if(process.platform==='darwin' && !app.isPackaged)app.dock.setIcon(runtimeIcon);
   registerWindowControls(ipcMain, BrowserWindow);
   ipcMain.handle("launcher:status", () => status());
-  ipcMain.handle("launcher:detect-prism", () => status(true));
   ipcMain.handle("launcher:verify", () => {
     const folder = packFolder();
     const manifestPath = path.join(folder, "manifest.json");
@@ -132,23 +139,18 @@ app.whenReady().then(async () => {
     catch { return { ok: false, message: "Local modpack not found." }; }
     return verifyPack(path.join(folder, name), manifestPath);
   });
-  ipcMain.handle("launcher:select-prism", async () => {
-    const result = await dialog.showOpenDialog({ title: "Select Prism Launcher", properties: ["openFile"] });
-    if (result.canceled) return status();
-    const selected = result.filePaths[0];
-    if (!isPrismExecutable(selected)) throw new Error("Select the Prism Launcher executable.");
-    writeSettings({ ...readSettings(), prismPath: selected });
-    return status();
-  });
-  ipcMain.handle("launcher:select-root", async () => {
+  ipcMain.handle("launcher:select-root", async event => {
+    assertEngineSender(mainWindow, event);
+    if (["login", "install", "launch", "playing"].includes(getEngine().state().phase)) throw new Error("请等待当前操作完成。");
     const result = await dialog.showOpenDialog({ title: "Select game folder", properties: ["openDirectory", "createDirectory"] });
     if (result.canceled) return status();
     writeSettings({ ...readSettings(), instanceRoot: result.filePaths[0] });
     return status();
   });
-  ipcMain.handle("launcher:install", async () => {
+  ipcMain.handle("launcher:install", async event => {
+    assertEngineSender(mainWindow, event);
     const current = await status();
-    if (!current.prismPath) throw new Error("Prism Launcher was not found. Install it or choose its location in Settings.");
+    if (!current.engine.available) throw new Error("游戏组件暂时不可用。");
     const folder = packFolder();
     const manifestPath = path.join(folder, "manifest.json");
     if (!current.pack.filename) throw new Error("The local modpack is not ready yet.");
@@ -156,10 +158,10 @@ app.whenReady().then(async () => {
     const verification = verifyPack(pack, manifestPath);
     if (!verification.ok) throw new Error(verification.message);
     fs.mkdirSync(current.instanceRoot, { recursive: true });
-    return startPrism(current.prismPath, prismArgs(current.instanceRoot, "import", pack));
+    return getEngine().install(pack);
   });
-  ipcMain.handle("launcher:play", (_, instanceId) => launchClient(instanceId));
-  ipcMain.handle("launcher:download-prism", () => shell.openExternal("https://prismlauncher.org/download/"));
+  ipcMain.handle("launcher:play", (event, instanceId) => { assertEngineSender(mainWindow, event); return launchClient(instanceId); });
+  registerEngineIpc(ipcMain, () => mainWindow, getEngine, shell);
   ipcMain.handle("launcher:open-pack-folder", () => shell.openPath(packFolder()));
   if(edition==='server'){
     const {createServerController}=require('./server-controller.cjs');
@@ -172,3 +174,5 @@ app.whenReady().then(async () => {
 app.on('before-quit',event=>{if(!quitting&&serverController?.hasActive()){event.preventDefault();requestQuit();}});
 
 app.on("window-all-closed", () => { if (process.platform !== "darwin") app.quit(); });
+
+app.on("will-quit", () => engine?.close());

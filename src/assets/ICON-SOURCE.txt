@@ -6,4 +6,13 @@ Copied on: 2026-10-18, at the user's explicit request.
 Artwork owner: Mojang / Microsoft. This is their existing icon, not mini artwork.
 
 src/assets/minecraft-launcher-icon.png and build/icon.png retain the original PNG bytes.
-scripts/make_icon.py converts this source to Windows ICO and macOS ICNS containers.
+scripts/make_icon.py converts this source to the Windows ICO container.
+
+macOS icon source: locally installed official Minecraft Launcher at
+/Applications/Minecraft.app/Contents/Resources/favicon.icns.
+Copied on: 2026-10-18, at the user's explicit request to use the Mac launcher icon.
+src/assets/minecraft-launcher-icon-mac.icns and build/icon.icns retain its original bytes.
+src/assets/minecraft-launcher-icon-mac.png is its 1024×1024 representation exported
+with macOS sips, copied to build/icon-mac.png for the Electron window and Dock.
+scripts/make_icon.py preserves these Mac assets rather than deriving them from the Windows icon.
+Artwork owner: Mojang / Microsoft.

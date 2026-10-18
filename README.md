@@ -1,10 +1,17 @@
 # Minecraft Mini Launcher
 
-Windows MVP for the **mini** Minecraft 26.3 player and server editions. The desktop UI is React + the actual Mini UI source at `vendor/mini-ui`. Electron holds a small, isolated bridge for file selection, pack verification and game launch. This version delegates Microsoft sign-in, Java installation and Minecraft launching to Prism Launcher through its documented CLI.
+The **mini** Minecraft 26.3 player and server editions. The desktop UI is React + the actual Mini UI source at `vendor/mini-ui`. Electron holds a small, isolated bridge for file selection, pack verification and game launch. Mini controls a modified Prism 11.1.1 background engine over a versioned JSON pipe. Microsoft sign-in, import/download progress, launch and errors belong to Mini; the upstream launcher UI is never a fallback.
 
-The launcher is a standalone mini product. Its animated grass-green and warm-beige start screen uses a transparent render of Minecraft Ten and Minecraft Five Bold 3D letter models for the heading, with actual Mini UI buttons. The title's perspective and side faces are part of the rendered artwork; the page does not approximate them with CSS text shadows. Source credits and render settings are recorded in `src/assets/TITLE-SOURCE.txt`. Prism and pack controls live in Settings.
+The launcher is a standalone mini product. Its animated grass-green and warm-beige start screen uses a transparent render of Minecraft Ten and Minecraft Five Bold 3D letter models for the heading, with actual Mini UI buttons. The title's perspective and side faces are part of the rendered artwork; the page does not approximate them with CSS text shadows. Source credits and render settings are recorded in `src/assets/TITLE-SOURCE.txt`. Account, game folder and pack controls live in Settings.
 
-Mini UI is pinned as a Git submodule. Clone with `--recurse-submodules`; `npm ci` reapplies the saved `patches/mini-ui-background-frame.patch` automatically and leaves an already patched checkout unchanged. This preserves the earlier WebGL fix and its regression tests; the launcher's current background uses CSS. No separate push to the Mini UI repository is needed.
+Mini UI is pinned as a Git submodule. The Mini UI dependency repository currently requires collaborator access; making this launcher repository public does not grant access to that separate repository. Clone with `--recurse-submodules`; `npm ci` reapplies the saved `patches/mini-ui-background-frame.patch` automatically and leaves an already patched checkout unchanged. This preserves the earlier WebGL fix and its regression tests; the launcher's current background uses CSS. No separate push to the Mini UI repository is needed.
+
+The engine is built from the pinned upstream source in `build/prism-release.json`, with adaptations under `native/prism/`. `npm run build:backend` downloads only the hash-checked source, builds the native service, deploys Qt dependencies, signs the local Mac bundle and writes a complete file inventory under ignored `runtime/backend/<platform>/`. Successful verified builds are reused until the adaptation changes. Packaging rejects missing, changed or wrong-architecture engines. Players never install, choose or download Prism separately. The former official-GUI download/discovery utilities remain developer references and are not used by the desktop app.
+
+The service rejects direct invocation without its parent arguments, skips setup/migration dialogs and uses device-code Microsoft authentication. Import installs the modpack; the launch pipeline performs the official Minecraft/runtime downloads and checks, so import does not pre-download the entire game separately. It imports verified `.mrpack` files and launches with Prism's game task directly, bypassing its window-based launch controller. Unexpected upstream dialogs are rejected and reported to Mini; they cannot silently wait for input. Only selected public account/status fields cross the pipe. Raw native/auth logs are not forwarded. Closing Mini while the game is running lets the game continue. Microsoft authorization itself opens Microsoft's site in the user's browser.
+
+Modified engine source, build scripts, GPL-3.0 text and upstream dependency notices accompany the engine under `backend/source/`. This is a modified build, not an official Prism release. This packaging is not a legal determination about whether the independently developed Mini frontend and engine constitute a combined work; settle that licensing scope before public distribution.
+macOS uses the original local Minecraft Launcher's multi-resolution ICNS in the app bundle, rather than replacing its Dock icon with a Windows image or a resized PNG. Development Electron runs use its exported Mac PNG. The native traffic lights have a 20px top and left inset, centered at 27px alongside the optically trimmed `mini` wordmark in the 54px header.
 
 ## What is in the local pack
 
@@ -41,26 +48,36 @@ python -m unittest discover -s tests -p "test_*.py" -v
 npm run desktop
 ```
 
-`npm run dev` serves only the React preview at `http://127.0.0.1:5187/`; installing and launching require the Electron desktop app. Run `python scripts/make_icon.py` before packaging. `npm run package:win` produces a Windows NSIS setup program and bundles the single generated pack. On this machine the F: repository drive denied Electron Builder's directory rename, so the verified local installer was built with:
+`npm run dev` serves only the React preview at `http://127.0.0.1:5187/`; installing and launching require Electron. `npm run desktop` builds/verifies the native engine and opens Mini. Production packaging still requires the private pack and its verified manifest. `npm run package:preview:mac` creates a local `.app` without that private pack, for UI/engine integration checks.
 
-```powershell
-npx electron-builder --win nsis --x64 --config.directories.output="C:/Minecraft/Builds/build-mini-0.1.3"
-```
+For macOS native builds, install Homebrew dependencies: `qtbase qtnetworkauth qtsvg qtimageformats cmake ninja extra-cmake-modules openjdk@17 cmark qrencode tomlplusplus libarchive`. Builds use the host architecture and currently installed SDK; the verified local engine targets this Mac's OS, not all older macOS versions. Windows builds require the native compiler/Ninja toolchain, JDK 17 via `JAVA_HOME`, and Qt/dependency paths via `CMAKE_PREFIX_PATH`. Windows source builds and production installers have not been verified on this Mac; no official GUI runtime is substituted if a native build is missing.
 
-The macOS target is configured but has not been built or tested on a Mac.
+## Microsoft sign-in configuration
+
+Prism's [custom-build policy](https://github.com/PrismLauncher/PrismLauncher#forkingredistributingcustom-builds-policy) requests that code-changing forks use their own API identifiers or clear them. This is described as a courtesy, not a GPL prohibition on modification. There is no explicit permission there for Mini to use Prism's Microsoft registration. We leave it empty by default; obtain upstream authorization before deliberately using their identity. Merely being public does not establish permission to use an application's Client ID.
+
+To register Mini's own identity:
+
+1. Use [Microsoft Entra admin center](https://entra.microsoft.com/), **Entra ID → App registrations → New registration**. Name it **Mini Launcher**. The Minecraft review form forbids new application names containing Minecraft, Mojang, Microsoft, Live, Xbox, Discord or Hypixel. Choose **Personal Microsoft accounts only** for Xbox/Minecraft consumer sign-in. Microsoft's [registration guide](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) currently lists an Azure account with an active subscription, an appropriate tenant and at least Application Developer access as prerequisites. This is separate from a Microsoft Store developer account.
+2. Copy **Application (client) ID** from Overview. It is an application identifier, not a player's account ID or password.
+3. In **Authentication → Advanced settings**, enable **Allow public client flows**. Our engine uses device-code flow, which does not require a redirect URI. Do not create or bundle a client secret. If converting an existing single-tenant registration to personal accounts, Microsoft may reject the change until `api.requestedAccessTokenVersion` is set to `2` in the Microsoft Graph app manifest; keep all other settings intact. See [Microsoft's desktop configuration guide](https://learn.microsoft.com/en-us/entra/identity-platform/scenario-desktop-app-configuration#enable-public-client-flow). The pinned upstream device-code implementation requests `XboxLive.SignIn XboxLive.offline_access` against the consumer endpoint.
+4. Request Minecraft Services application approval through the [Minecraft application review entry point](https://aka.ms/mce-reviewappid). On 2026-10-18 the form was inspected in a real browser. It asks for EULA/Usage Guidelines acknowledgement, a valid contact email matching the Azure registration, request type **New AppID for Approval**, application name, Application (client) ID, Directory (tenant) ID, a website/domain, and a justification. It states that submissions are reviewed weekly; that is not an approval-time guarantee. A Client ID alone is not proof of Minecraft API approval. Do not treat Entra registration or successful Xbox sign-in as a completed game-login test.
+5. Put the approved ID in `build/engine-config.json` as `microsoftClientId`, or set `MINI_MICROSOFT_CLIENT_ID` for a local run. Restart Mini. The value is shipped by the app publisher; players do not register applications or enter IDs.
+
+The owner registered Mini Launcher on 2026-10-18. Its own public client ID is configured in `build/engine-config.json`; the registration supports personal Microsoft accounts, public client flows are enabled, and the access-token version is 2. A real isolated native-backend check successfully received a Microsoft device code, then deliberately cancelled without account sign-in. This does not establish Minecraft Services approval. Microsoft login cannot be completed here until the user signs in and the necessary Minecraft application review is approved. Registration, any terms acceptance and application review must be completed by the application owner; nothing has been submitted on the user's behalf.
 
 ## First run
 
-1. The desktop app automatically looks for Prism Launcher in common install folders and PATH. On Windows it also checks registered installs, Prism shortcuts in the Start menu and on the desktop, and running Prism processes. A manually selected executable takes priority. Use **Auto-detect** in Settings to retry after installing or moving Prism, or **Choose manually** for a portable copy outside those locations. OS discovery runs asynchronously and caches misses for 30 seconds; normal status polling does not repeatedly scan Windows. Prism supports importing `.mrpack`, running a separate application data root and launching a specific instance by ID.
-2. Optionally change the independent instance directory. Its default is the launcher's own app-data folder, under `PrismData`.
-3. Click **Install pack**. The launcher verifies the private pack and opens Prism's import flow. Prism handles official downloads, Microsoft sign-in and Java. Finish any Prism prompts there.
-4. When the imported instance appears in the launcher's **Start** view, click **Play**. The launcher invokes Prism with `--dir <isolated-root> --launch <instance-id>`.
+1. Open Mini. Its bundled service starts without setup or Prism windows.
+2. Sign in under **Settings → Launcher → Microsoft account**. Mini displays the device code and opens the official Microsoft authorization page when requested. Missing publisher configuration is shown explicitly.
+3. The private pack is verified before installation. All installation progress, cancellation and errors remain in Mini.
+4. **Play** starts the installed game. Game exit returns Mini to idle. **Change folder** is blocked while a login, install or game is active.
 
-The first version has no automatic update server or its own Microsoft authentication. The packaged installer is unsigned for public trust purposes. The user can verify the local pack from **Settings** at any time.
+Local Mac builds are ad-hoc signed for local testing, not Developer ID signed/notarized for public distribution. There is no automatic game update server yet.
 
 ## Player and server editions
 
-Both editions install and launch the same private client pack through Prism. The server edition adds server controls to **Settings** and uses a separate app-data directory. Packaged player builds cannot enable server operations with a URL or command-line flag, and omit the server-management modules and server bundle.
+Both editions install and launch the same private client pack through the bundled background engine. The server edition adds server controls to **Settings** and uses a separate app-data directory. Packaged player builds cannot enable server operations with a URL or command-line flag, and omit the server-management modules and server bundle.
 
 The home screen contains Play and Settings. Both editions have **Launcher** and **Packages** settings. Packages lists the client pack's exact mod, shader and resource-pack files, distinguishes bundled files from downloads, and identifies collection previews. Its inventory comes from the generated manifest; `pack/contents.json` is the same metadata snapshot for browser previews, not a report of installed software. The builder refreshes it when generating the default local pack. The server edition also includes **Server** for configuration, start/stop controls, the collapsible console, client joining and world backups, and **playit** for its agent controls and public address.
 
@@ -79,7 +96,7 @@ The server bundle includes the shared furniture, elevator and world-generation m
 1. Open **Settings → Server** in the server edition. **Local test** is selected by default.
 2. Use **Prepare server**. Java 25+ is auto-detected where available; **Choose** supports a manually installed runtime. The server does not bundle Java.
 3. Read the Minecraft EULA and accept it yourself before **Start server** becomes available. Preparation never accepts it. The Fabric launcher downloads its official Minecraft server and runtime libraries on first launch, so internet access is required then.
-4. Wait for **Running**, then use **Launch & join** with a matching 26.3 Prism instance. A game exit does not stop the server.
+4. Wait for **Running**, then use **Launch & join** with a matching installed 26.3 instance. A game exit does not stop the server.
 5. **Stop** sends Minecraft's normal `stop` command and waits for process exit. **Restart** performs the same save first. Closing mini while a server is active offers to save and stop it; a timeout never force-kills a saving server.
 6. Use **Back up** while stopped. It copies the generated `world` and `server.properties` into a timestamped backup directory. Restoration is manual in this version.
 
@@ -101,7 +118,9 @@ On 2026-10-18, the Windows server bundle completed a real Java 25 / Fabric 0.19.
 
 After the host explicitly accepted the EULA, a local test on the same date reached Running at `127.0.0.1:25565` in 54.3 seconds. Minecraft status and ping returned version 26.3 (protocol 777); `list`, `save-all flush`, normal shutdown and the saved `world/level.dat` all passed. The first immediate status probe timed out; a second run confirmed a console response before querying and passed. The existing Windows performance-counter and Skniro data-fixer diagnostics remain. No authenticated player login, furniture interaction or public playit connection was tested. The local test server was left stopped. Local evidence is in `out/local-server-smoke-result.json` and `out/local-server-smoke.log`.
 
-macOS packaging is configured (`npm run package:server:mac`) but has not been built or tested on a Mac. End-to-end account sign-in, joining through Prism and a public playit tunnel require the host's account setup.
+Mac verification (2026-10-18): the ARM64 preview app was packaged with the modified service, opened in Electron, and the Mini account page reported the backend ready with sign-in explicitly pending publisher configuration. Both the prepared engine and the copy inside the packaged app passed the real-process smoke test and strict native signature verification. Static dependency inspection and actual loader output confirmed the engine uses bundled libraries rather than Homebrew paths. The app was left open.
+
+Background-engine verification is performed with `npm run test:native` against a real native process and isolated temporary data. This covers protocol startup, no upstream dialogs, missing login configuration, rejected unauthenticated launch, failed invalid imports and successful import of a small synthetic `.mrpack`. It does not authenticate a real account, download the full private Mini pack, launch Minecraft, or join a server. The complete private pack is absent on this Mac. All 32 Node tests and three Python pack tests passed. `npm test` also covers the pipe/controller boundary and verifies engine integrity before packaging. Browser preview never claims a real game was launched.
 
 ## References
 

@@ -11,13 +11,17 @@
     "postinstall": "node scripts/apply-mini-ui-patch.cjs",
     "dev": "vite --host 127.0.0.1 --port 5187",
     "build": "vite build",
-    "desktop": "npm run build && electron .",
-    "desktop:server": "npm run build && electron . --server",
+    "desktop": "npm run build:backend && npm run build && electron .",
+    "desktop:server": "npm run build:backend && npm run build && electron . --server",
     "test": "node --test tests/*.test.cjs",
-    "package:win": "npm run build && electron-builder --config build/player.cjs --win nsis --x64",
-    "package:mac": "npm run build && electron-builder --config build/player.cjs --mac dmg",
-    "package:server:win": "npm run build && electron-builder --config build/server.cjs --win nsis --x64",
-    "package:server:mac": "npm run build && electron-builder --config build/server.cjs --mac dmg"
+    "package:win": "npm run build:backend && npm run build && electron-builder --config build/player.cjs --win nsis --x64",
+    "package:mac": "npm run build:backend && npm run build && electron-builder --config build/player.cjs --mac dmg",
+    "package:server:win": "npm run build:backend && npm run build && electron-builder --config build/server.cjs --win nsis --x64",
+    "package:server:mac": "npm run build:backend && npm run build && electron-builder --config build/server.cjs --mac dmg",
+    "prepare:prism": "node scripts/prepare-prism.cjs",
+    "package:preview:mac": "npm run build:backend && npm run build && electron-builder --config build/preview.cjs --mac --dir",
+    "build:backend": "node scripts/build-backend.cjs",
+    "test:native": "node --test tests/headless-native.smoke.cjs"
   },
   "dependencies": {
     "@remixicon/react": "4.9.0",
@@ -33,13 +37,66 @@
   "build": {
     "appId": "studio.mini.minecraftlauncher",
     "productName": "mini",
-    "directories": { "output": "release/local" },
-    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "src/fonts/*.txt", "src/assets/*.txt", "build/icon.png", "build/icon.ico", "package.json"],
-    "extraResources": [
-      { "from": "pack/local", "to": "pack", "filter": ["Mini-Local-26.3.mrpack", "manifest.json"] }
+    "directories": {
+      "output": "release/local"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "pack/catalog.json",
+      "src/fonts/*.txt",
+      "src/assets/*.txt",
+      "build/icon.png",
+      "build/icon-mac.png",
+      "build/icon.ico",
+      "package.json",
+      "build/engine-config.json"
     ],
-    "win": { "target": ["nsis"], "icon": "build/icon.ico", "artifactName": "Minecraft-Mini-Launcher-${version}-Setup.${ext}" },
-    "mac": { "target": ["dmg"], "icon": "build/icon.icns", "artifactName": "Minecraft-Mini-Launcher-${version}-${arch}.${ext}" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "extraResources": [
+      {
+        "from": "pack/local",
+        "to": "pack",
+        "filter": [
+          "Mini-Local-26.3.mrpack",
+          "manifest.json"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Minecraft-Mini-Launcher-${version}-Setup.${ext}",
+      "extraResources": [
+        {
+          "from": "runtime/backend/win32",
+          "to": "backend",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.icns",
+      "artifactName": "Minecraft-Mini-Launcher-${version}-${arch}.${ext}",
+      "extraResources": [
+        {
+          "from": "runtime/backend/darwin",
+          "to": "backend",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

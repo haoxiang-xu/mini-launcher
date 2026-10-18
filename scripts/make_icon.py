@@ -12,4 +12,5 @@ copyfile(source, OUT / "icon.png")
 with Image.open(source) as original:
     image = original.convert("RGBA")
     image.save(OUT / "icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
-    image.resize((1024, 1024), Image.Resampling.NEAREST).save(OUT / "icon.icns")
+copyfile(ROOT / "src/assets/minecraft-launcher-icon-mac.png", OUT / "icon-mac.png")
+copyfile(ROOT / "src/assets/minecraft-launcher-icon-mac.icns", OUT / "icon.icns")

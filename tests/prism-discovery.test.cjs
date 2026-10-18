@@ -68,3 +68,19 @@ test("a moved detected launcher is recovered and OS lookup failures allow retry"
   current = f.binary("New location");
   assert.equal((await detect()).path, current);
 });
+
+test("uses the bundled launcher ahead of system installs while preserving an explicit manual choice", async (t) => {
+  const { createPrismDetector } = require("../desktop/prism-discovery.cjs");
+  const f = fixture(t);
+  const bundled = f.binary("Bundled runtime");
+  const system = f.binary("Prism Launcher");
+  const manual = f.binary("Manual choice");
+  let scans = 0;
+  const detect = createPrismDetector({ platform: "win32", env: f.env, bundledPath: bundled,
+    scanInstallations: async () => { scans++; return [system]; } });
+  assert.deepEqual(await detect(), { path: bundled, source: "bundled" });
+  assert.deepEqual(await detect(manual), { path: manual, source: "saved" });
+  fs.unlinkSync(bundled);
+  assert.deepEqual(await detect(), { path: system, source: "auto" });
+  assert.equal(scans, 0);
+});

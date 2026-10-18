@@ -54,6 +54,7 @@ async function scanWindowsInstallations(env) {
 function createPrismDetector({
   platform = process.platform,
   env = process.env,
+  bundledPath = null,
   scanInstallations = () => platform === "win32" ? scanWindowsInstallations(env) : Promise.resolve([]),
   now = Date.now,
   cacheMs = 30_000,
@@ -64,6 +65,7 @@ function createPrismDetector({
 
   return async function detect(savedPath, { refresh = false } = {}) {
     if (isPrismExecutable(savedPath)) return { path: savedPath, source: "saved" };
+    if (isPrismExecutable(bundledPath)) return { path: bundledPath, source: "bundled" };
     const quick = findPrism(null, platform, env);
     if (quick) return { path: quick, source: "auto" };
     if (!refresh && isPrismExecutable(cachedPath)) return { path: cachedPath, source: "auto" };

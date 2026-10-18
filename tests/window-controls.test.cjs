@@ -36,7 +36,8 @@ test("hidden title bar retains resizing and uses native traffic lights only on m
   assert.equal(windows.resizable, true);
   assert.equal(windows.frame, true);
   assert.equal(windows.trafficLightPosition, undefined);
-  assert.deepEqual(windowChromeOptions("darwin").trafficLightPosition, { x: 12, y: 16 });
+  // Native buttons are 14px tall: a 20px inset centers them in the 54px header.
+  assert.deepEqual(windowChromeOptions("darwin").trafficLightPosition, { x: 20, y: 20 });
 });
 
 test("window controls toggle maximize/restore and publish native window state changes", () => {

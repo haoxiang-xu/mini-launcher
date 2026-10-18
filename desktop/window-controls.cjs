@@ -5,7 +5,7 @@ function windowChromeOptions(platform) {
     hasShadow: true,
     resizable: true,
     maximizable: true,
-    ...(platform === "darwin" ? { trafficLightPosition: { x: 12, y: 16 } } : {}),
+    ...(platform === "darwin" ? { trafficLightPosition: { x: 20, y: 20 } } : {}),
   };
 }
 

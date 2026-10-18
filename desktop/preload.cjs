@@ -28,12 +28,20 @@ contextBridge.exposeInMainWorld("miniLauncher", {
     },
   },
   status: () => call("launcher:status"),
-  detectPrism: () => call("launcher:detect-prism"),
+  engine: {
+    login: () => call('engine:login'),
+    logout: accountId => call('engine:logout', accountId),
+    cancel: () => call('engine:cancel'),
+    openAuthorization: () => call('engine:open-authorization'),
+    onStateChange: callback => {
+      const listener = (_event, state) => callback(state);
+      ipcRenderer.on('engine:state', listener);
+      return () => ipcRenderer.removeListener('engine:state', listener);
+    },
+  },
   verify: () => call("launcher:verify"),
-  selectPrism: () => call("launcher:select-prism"),
   selectRoot: () => call("launcher:select-root"),
   install: () => call("launcher:install"),
   play: (instanceId) => call("launcher:play", instanceId),
-  downloadPrism: () => call("launcher:download-prism"),
   openPackFolder: () => call("launcher:open-pack-folder"),
 });
