@@ -1,0 +1,3 @@
+[submodule "vendor/mini-ui"]
+	path = vendor/mini-ui
+	url = https://github.com/haoxiang-xu/mini_ui.git

@@ -1,0 +1,14 @@
+{
+  "mods": [
+    "EC-Furniture-Blocks-2.17.5+26.3.jar",
+    "lithostitched-2.0.4-fabric-26.3.jar",
+    "modmenu-21.0.0.jar",
+    "Mona-Lisa-Painting-1.1.0+26.3.jar",
+    "PTS-Deco-15.0-Fabric26.3.jar",
+    "SkniroFurniture-1.6.1-26.3-Fabric.jar",
+    "tectonic-3.0.31-fabric-26.3.jar",
+    "YOHaku-Elevator-1.2.3+26.3.jar",
+    "YOHaku-Furniture-Manager-1.1.0+26.3.jar"
+  ],
+  "staffOnly": ["Axiom-6.1.3-for-MC26.3.jar"]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "minecraft-mini-launcher",
+  "productName": "Minecraft Mini Launcher",
+  "version": "0.1.1",
+  "description": "mini Minecraft client pack desktop launcher",
+  "author": "mini",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5187",
+    "build": "vite build",
+    "desktop": "npm run build && electron .",
+    "test": "node --test tests/*.test.cjs",
+    "package:win": "npm run build && electron-builder --win nsis --x64",
+    "package:mac": "npm run build && electron-builder --mac dmg"
+  },
+  "dependencies": {
+    "@remixicon/react": "4.9.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.1.2",
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3",
+    "vite": "8.3.4"
+  },
+  "build": {
+    "appId": "studio.mini.minecraftlauncher",
+    "productName": "mini",
+    "directories": { "output": "release/local" },
+    "files": ["dist/**/*", "desktop/**/*", "pack/catalog.json", "package.json"],
+    "extraResources": [
+      { "from": "pack/local", "to": "pack", "filter": ["Mini-Local-26.3.mrpack", "manifest.json"] }
+    ],
+    "win": { "target": ["nsis"], "icon": "build/icon.ico", "artifactName": "Minecraft-Mini-Launcher-${version}-Setup.${ext}" },
+    "mac": { "target": ["dmg"], "artifactName": "Minecraft-Mini-Launcher-${version}-${arch}.${ext}" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  }
+}

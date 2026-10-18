@@ -1,0 +1,9 @@
+node_modules/
+dist/
+out/
+release/
+pack/local/
+vendor/mini-ui-incomplete/
+*.log
+__pycache__/
+*.pyc

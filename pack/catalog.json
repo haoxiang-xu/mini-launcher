@@ -1,0 +1,16 @@
+{
+  "name": "mini collection",
+  "minecraft": "26.3",
+  "fabricLoader": "0.19.5",
+  "javaMajor": 25,
+  "components": [
+    { "id": "gym", "name": "Gym Collection", "status": "installed", "source": "EC Furniture" },
+    { "id": "bar", "name": "Bar Collection", "status": "installed", "source": "EC Furniture" },
+    { "id": "cafe", "name": "Cafe Furniture · Decor Pack", "status": "installed", "source": "EC Furniture", "privateAsset": true },
+    { "id": "office", "name": "Office Animated Furniture Volume 2", "status": "installed", "source": "EC Furniture", "privateAsset": true },
+    { "id": "elevator", "name": "Elevator", "status": "installed", "source": "Elevator mod" },
+    { "id": "furniture-menu", "name": "Furniture Menu", "status": "installed", "source": "Furniture Manager mod" },
+    { "id": "arcade", "name": "Arcade Collection", "status": "model-only", "source": "Model preview" },
+    { "id": "inventory-ui", "name": "Mini Minecraft UI", "status": "prototype", "source": "mini-minecraft-ui" }
+  ]
+}
