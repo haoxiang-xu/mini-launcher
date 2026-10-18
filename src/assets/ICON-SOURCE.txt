@@ -1,18 +1,19 @@
-Minecraft Launcher application icon
+Mini Launcher application icon
 
-Source: locally installed official Minecraft Launcher, package Microsoft.4297127D64EC6 2.6.2.0.
-Original file: C:/XboxGames/Minecraft Launcher/Content/SmallLogo.altform-unplated_targetsize-256.png
-Copied on: 2026-10-18, at the user's explicit request.
-Artwork owner: Mojang / Microsoft. This is their existing icon, not mini artwork.
+Original composition: green rounded square and block-style M monogram.
+The previous official launcher icons have been removed from the current tree.
+Vector composition and platform exports: scripts/make_icon.cjs.
+Source artwork: src/assets/mini-launcher-icon.svg (1024 x 1024).
+The 824px rounded-square tile has a 100px transparent margin and 184px radius.
+Exports: build/icon.png, build/icon-mac.png, build/icon.ico, build/icon.icns.
 
-src/assets/minecraft-launcher-icon.png and build/icon.png retain the original PNG bytes.
-scripts/make_icon.py converts this source to the Windows ICO container.
-
-macOS icon source: locally installed official Minecraft Launcher at
-/Applications/Minecraft.app/Contents/Resources/favicon.icns.
-Copied on: 2026-10-18, at the user's explicit request to use the Mac launcher icon.
-src/assets/minecraft-launcher-icon-mac.icns and build/icon.icns retain its original bytes.
-src/assets/minecraft-launcher-icon-mac.png is its 1024×1024 representation exported
-with macOS sips, copied to build/icon-mac.png for the Electron window and Dock.
-scripts/make_icon.py preserves these Mac assets rather than deriving them from the Windows icon.
-Artwork owner: Mojang / Microsoft.
+Monogram: src/assets/mini-monogram-3d.png, generated 2026-10-18.
+Renderer: https://creativestar.store/en/tools/minecraft-title-generator
+Letter model and Flat texture: Ewan Howell and contributors,
+https://github.com/ewanhowell5195/MinecraftTitleGenerator
+Input M; font Minecraft Ten; Type Big; size 100%; Flat texture; no overlay;
+no end caps; zero letter spacing; zero outline depth.
+Camera: orbit 0, height -28, perspective FOV 40, zoom 100, orthographic off.
+Transparent 1920 x 1080 export; visible bounds x=483, y=114, w=954, h=841.
+The SVG positions this render over the original green tile without deformation.
+This custom monogram is not the official game or launcher icon.

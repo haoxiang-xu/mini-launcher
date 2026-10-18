@@ -12,7 +12,8 @@ const catalog = require("../pack/catalog.json");
 const { editionFor } = require("./edition.cjs");
 const edition = editionFor({packaged:app.isPackaged,metadata:require('../package.json'),argv:process.argv});
 let mainWindow, serverController, quitting = false, quitPending = false;
-if (edition === 'server') app.setPath('userData', path.join(app.getPath('appData'), 'minecraft-mini-launcher-server'));
+// Preserve existing settings and accounts across the product rename.
+app.setPath('userData', path.join(app.getPath('appData'), edition === 'server' ? 'minecraft-mini-launcher-server' : 'Minecraft Mini Launcher'));
 const ownsInstance = app.requestSingleInstanceLock();
 if (!ownsInstance) app.quit();
 app.on('second-instance',()=>{if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus();}});
@@ -60,7 +61,7 @@ async function status() {
   let manifest = null;
   try { manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } catch { /* No private pack generated yet. */ }
   return {
-    appName: "Minecraft Mini Launcher",
+    appName: "Mini Launcher",
     edition,
     catalog,
     engine: engineState,
@@ -102,7 +103,7 @@ function createWindow() {
     minHeight: 680,
     backgroundColor: "#ece9df",
     icon: runtimeIcon,
-    title: edition === 'server' ? 'Minecraft Mini Launcher — Server' : 'Minecraft Mini Launcher',
+    title: edition === 'server' ? 'Mini Launcher — Server' : 'Mini Launcher',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -113,7 +114,7 @@ function createWindow() {
     },
   });
   mainWindow=window;
-  window.on('page-title-updated',event=>{event.preventDefault();window.setTitle(edition==='server'?'Minecraft Mini Launcher — Server':'Minecraft Mini Launcher');});
+  window.on('page-title-updated',event=>{event.preventDefault();window.setTitle(edition==='server'?'Mini Launcher — Server':'Mini Launcher');});
   window.on('close',event=>{if(!quitting&&serverController?.hasActive()){event.preventDefault();requestQuit();}});
   window.on('closed',()=>{mainWindow=null;});
   if (process.platform !== "darwin") window.setMenu(null);

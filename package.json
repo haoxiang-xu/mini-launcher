@@ -1,8 +1,8 @@
 {
-  "name": "minecraft-mini-launcher",
-  "productName": "Minecraft Mini Launcher",
+  "name": "mini-launcher",
+  "productName": "Mini Launcher",
   "version": "0.1.4",
-  "description": "mini Minecraft player and server launcher",
+  "description": "Mini Launcher player and server editions",
   "author": "mini",
   "private": true,
   "type": "module",
@@ -29,6 +29,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@vitejs/plugin-react": "6.1.2",
     "electron": "44.9.0",
     "electron-builder": "26.15.3",
@@ -67,7 +68,7 @@
         "nsis"
       ],
       "icon": "build/icon.ico",
-      "artifactName": "Minecraft-Mini-Launcher-${version}-Setup.${ext}",
+      "artifactName": "Mini-Launcher-${version}-Setup.${ext}",
       "extraResources": [
         {
           "from": "runtime/backend/win32",
@@ -83,7 +84,7 @@
         "dmg"
       ],
       "icon": "build/icon.icns",
-      "artifactName": "Minecraft-Mini-Launcher-${version}-${arch}.${ext}",
+      "artifactName": "Mini-Launcher-${version}-${arch}.${ext}",
       "extraResources": [
         {
           "from": "runtime/backend/darwin",

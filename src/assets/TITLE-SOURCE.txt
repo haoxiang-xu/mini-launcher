@@ -1,37 +1,19 @@
-Minecraft Mini Launcher title artwork
+Mini Launcher title artwork
 
-File: minecraft-mini-launcher-3d.png
+File: mini-launcher-title-3d.png
 Rendered on: 2026-10-18
 Renderer: https://creativestar.store/en/tools/minecraft-title-generator
 3D letter models and textures: https://github.com/ewanhowell5195/MinecraftTitleGenerator
 Font models and Flat textures: Ewan Howell and contributors.
+This community-generated render is not an official game wordmark.
 
-This is a custom text render, not a downloaded official Minecraft logo.
-The old Minecraft-Titling.ttf license does not describe this artwork.
-
-Main title:
-  Text: MINECRAFT
-  Font: Minecraft Ten
-  Type: Big
-  Size: 100%
-  Texture: Flat
-  Overlay: None
-
-Subtitle:
-  Input text: MINI LaUNCHER
-  Display text: MINI LAUNCHER
-  The lowercase input a selects the ordinary A instead of the Creeper A.
-  Font: Minecraft Five Bold
-  Type: Small
-  Size: 110%
-  Texture: Flat
-  Overlay: None
-
-Both lines: no end caps, zero letter spacing, black outline depth 0%.
+Title: input MINI LaUNCHER; display MINI LAUNCHER. No subtitle.
+Font Minecraft Ten; Type Big; Size 100%; Texture Flat; Overlay None.
+Lowercase input a selects the ordinary A rather than the Creeper A.
+No end caps, zero letter spacing, black outline depth 0%.
 Camera: orbit 0 degrees, height -28 degrees, perspective FOV 40 degrees,
 zoom 100%, orthographic disabled.
 Export: transparent PNG, 1920 x 1080.
-Visible alpha bounds: x=73, y=354, width=1725, height=348.
-The SVG viewport in App.jsx crops only the transparent export margins,
-with eight pixels of padding. It does not stretch or skew the artwork.
-SHA-256: 8c525499682fbeac517cc579fe413d244d5f65753c5bff3d33cb65dd85fd70a0
+Visible alpha bounds: x=65, y=426, width=1791, height=228.
+App.jsx SVG viewBox: 57 418 1807 244 (8px transparent margin).
+SHA-256: b8e9cc04c80f15023f3174aeefa1ca8fd46de30c7b30b946706a309089121f91

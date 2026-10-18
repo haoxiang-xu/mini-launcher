@@ -5,7 +5,7 @@ import {
   RiToolsLine, RiServerLine, RiGlobalLine, RiStackLine,
 } from "@remixicon/react";
 import { Button, MiniProvider, Tooltip } from "./mini.jsx";
-import titleArtwork from "./assets/minecraft-mini-launcher-3d.png";
+import titleArtwork from "./assets/mini-launcher-title-3d.png";
 import WindowControls from "./WindowControls.jsx";
 import LauncherBackground from "./LauncherBackground.jsx";
 import ServerSettings from "./ServerSettings.jsx";
@@ -129,8 +129,8 @@ function App() {
         {page === "home" ? (
           <main className="home-screen">
             <div className="home-center">
-              <h1 className="minecraft-title" aria-label="Minecraft Mini Launcher">
-                <svg viewBox="65 346 1741 364" aria-hidden="true" focusable="false">
+              <h1 className="launcher-title" aria-label="Mini Launcher">
+                <svg viewBox="57 418 1807 244" aria-hidden="true" focusable="false">
                   <image href={titleArtwork} width="1920" height="1080" />
                 </svg>
               </h1>
@@ -150,11 +150,11 @@ function App() {
           </main>
         ) : (
           <main className="settings-screen settings-with-sidebar">
+            <div className="settings-navigation">
             <button className="back-link" onClick={() => setPage('home')}>
               <RiArrowLeftLine size={18} /> Back
             </button>
             <h1>Settings</h1>
-            <div className="settings-layout">
               <nav className="settings-sidebar" aria-label="Settings sections">
                 {[
                   {id:'launcher', label:'Launcher', Icon:RiToolsLine},
@@ -168,7 +168,9 @@ function App() {
                   content:{children:{display:'flex',alignItems:'center',gap:10,lineHeight:'20px'}},
                 }}><Icon size={17} aria-hidden="true"/><span>{label}</span></Button>)}
               </nav>
-              <div className="settings-panels scrollable" tabIndex={0} data-sb-wall={5} aria-label="Settings content">
+            </div>
+            <div className="settings-scroll-region scrollable" tabIndex={0} data-sb-edge={32} data-sb-wall={5} aria-label="Settings content">
+              <div className="settings-panels">
             <section className="settings-list settings-panel" hidden={settingsSection !== 'launcher'} aria-label="Launcher settings">
               <AccountSettings engine={engine} onSignIn={() => run(() => bridge.engine.login())} onSignOut={id => run(() => bridge.engine.logout(id))}/>
 

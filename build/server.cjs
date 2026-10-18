@@ -14,6 +14,6 @@ module.exports = {
     ...base.extraResources,
     { from: 'pack/server-local', to: 'server-pack', filter: ['manifest.json', 'server-launch.jar', 'mods/*.jar'] },
   ],
-  win: { ...base.win, artifactName: 'Minecraft-Mini-Server-${version}-Setup.${ext}' },
-  mac: { ...base.mac, artifactName: 'Minecraft-Mini-Server-${version}-${arch}.${ext}' },
+  win: { ...base.win, artifactName: 'Mini-Server-${version}-Setup.${ext}' },
+  mac: { ...base.mac, artifactName: 'Mini-Server-${version}-${arch}.${ext}' },
 };

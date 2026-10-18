@@ -1,8 +1,12 @@
-# Minecraft Mini Launcher
+# Mini Launcher
+
+Repository: https://github.com/haoxiang-xu/mini-launcher
+
+**Independent project. Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.**
 
 The **mini** Minecraft 26.3 player and server editions. The desktop UI is React + the actual Mini UI source at `vendor/mini-ui`. Electron holds a small, isolated bridge for file selection, pack verification and game launch. Mini controls a modified Prism 11.1.1 background engine over a versioned JSON pipe. Microsoft sign-in, import/download progress, launch and errors belong to Mini; the upstream launcher UI is never a fallback.
 
-The launcher is a standalone mini product. Its animated grass-green and warm-beige start screen uses a transparent render of Minecraft Ten and Minecraft Five Bold 3D letter models for the heading, with actual Mini UI buttons. The title's perspective and side faces are part of the rendered artwork; the page does not approximate them with CSS text shadows. Source credits and render settings are recorded in `src/assets/TITLE-SOURCE.txt`. Account, game folder and pack controls live in Settings.
+The launcher is a standalone mini product. Its animated grass-green and warm-beige start screen displays **MINI LAUNCHER**, rendered with community 3D letter models. The app icon is an original green rounded square with an M monogram in the matching block-letter style. It does not use the official game or launcher icon. Artwork source credits are recorded in `src/assets/TITLE-SOURCE.txt` and `src/assets/ICON-SOURCE.txt`. Account, game folder and pack controls live in Settings.
 
 Mini UI is pinned as a Git submodule. The Mini UI dependency repository currently requires collaborator access; making this launcher repository public does not grant access to that separate repository. Clone with `--recurse-submodules`; `npm ci` reapplies the saved `patches/mini-ui-background-frame.patch` automatically and leaves an already patched checkout unchanged. This preserves the earlier WebGL fix and its regression tests; the launcher's current background uses CSS. No separate push to the Mini UI repository is needed.
 
@@ -11,7 +15,7 @@ The engine is built from the pinned upstream source in `build/prism-release.json
 The service rejects direct invocation without its parent arguments, skips setup/migration dialogs and uses device-code Microsoft authentication. Import installs the modpack; the launch pipeline performs the official Minecraft/runtime downloads and checks, so import does not pre-download the entire game separately. It imports verified `.mrpack` files and launches with Prism's game task directly, bypassing its window-based launch controller. Unexpected upstream dialogs are rejected and reported to Mini; they cannot silently wait for input. Only selected public account/status fields cross the pipe. Raw native/auth logs are not forwarded. Closing Mini while the game is running lets the game continue. Microsoft authorization itself opens Microsoft's site in the user's browser.
 
 Modified engine source, build scripts, GPL-3.0 text and upstream dependency notices accompany the engine under `backend/source/`. This is a modified build, not an official Prism release. This packaging is not a legal determination about whether the independently developed Mini frontend and engine constitute a combined work; settle that licensing scope before public distribution.
-macOS uses the original local Minecraft Launcher's multi-resolution ICNS in the app bundle, rather than replacing its Dock icon with a Windows image or a resized PNG. Development Electron runs use its exported Mac PNG. The native traffic lights have a 20px top and left inset, centered at 27px alongside the optically trimmed `mini` wordmark in the 54px header.
+macOS uses Mini's multi-resolution ICNS in the app bundle; Windows uses the matching ICO and browser previews use the SVG. Regenerate all formats with `node scripts/make_icon.cjs` (requires Pillow). The native traffic lights have a 20px top and left inset, centered at 27px alongside the optically trimmed `mini` wordmark in the 54px header. The product rename preserves the existing application data directories and OS bundle identifiers, so saved settings, accounts and worlds keep their locations.
 
 ## What is in the local pack
 
@@ -41,7 +45,7 @@ The builder checks all requested files before creating an archive and refuses a 
 
 ```powershell
 git clone --recurse-submodules <this-repository>
-cd minecraft-mini-launcher
+cd mini-launcher
 npm ci
 npm test
 python -m unittest discover -s tests -p "test_*.py" -v
@@ -64,7 +68,7 @@ To register Mini's own identity:
 4. Request Minecraft Services application approval through the [Minecraft application review entry point](https://aka.ms/mce-reviewappid). On 2026-10-18 the form was inspected in a real browser. It asks for EULA/Usage Guidelines acknowledgement, a valid contact email matching the Azure registration, request type **New AppID for Approval**, application name, Application (client) ID, Directory (tenant) ID, a website/domain, and a justification. It states that submissions are reviewed weekly; that is not an approval-time guarantee. A Client ID alone is not proof of Minecraft API approval. Do not treat Entra registration or successful Xbox sign-in as a completed game-login test.
 5. Put the approved ID in `build/engine-config.json` as `microsoftClientId`, or set `MINI_MICROSOFT_CLIENT_ID` for a local run. Restart Mini. The value is shipped by the app publisher; players do not register applications or enter IDs.
 
-The owner registered Mini Launcher on 2026-10-18. Its own public client ID is configured in `build/engine-config.json`; the registration supports personal Microsoft accounts, public client flows are enabled, and the access-token version is 2. A real isolated native-backend check successfully received a Microsoft device code, then deliberately cancelled without account sign-in. This does not establish Minecraft Services approval. Microsoft login cannot be completed here until the user signs in and the necessary Minecraft application review is approved. Registration, any terms acceptance and application review must be completed by the application owner; nothing has been submitted on the user's behalf.
+The owner registered Mini Launcher on 2026-10-18. Its own public client ID is configured in `build/engine-config.json`; the registration supports personal Microsoft accounts, public client flows are enabled, and the access-token version is 2. A real isolated native-backend check successfully received a Microsoft device code, then deliberately cancelled without account sign-in. This does not establish Minecraft Services approval. Microsoft login cannot be completed here until the user signs in and the necessary Minecraft application review is approved. The application owner submitted the Minecraft Services AppID review request on 2026-10-18. Approval is still pending; submitting the request does not establish API approval or grant permission to use Mojang/Microsoft branding.
 
 ## First run
 
