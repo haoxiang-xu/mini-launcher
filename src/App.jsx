@@ -113,7 +113,6 @@ function App() {
       >
         <LauncherBackground />
         <header className="launcher-header">
-          <span className="header-wordmark">mini{serverEdition && <span className="header-edition">server</span>}</span>
           <WindowControls api={bridge?.windowControls} onError={setNotice} />
         </header>
 
@@ -129,8 +128,8 @@ function App() {
         {page === "home" ? (
           <main className="home-screen">
             <div className="home-center">
-              <h1 className="launcher-title" aria-label="Mini Launcher">
-                <svg viewBox="57 418 1807 244" aria-hidden="true" focusable="false">
+              <h1 className="launcher-title" aria-label="Mini Launcher — for Minecraft">
+                <svg viewBox="68 387 1785 285" aria-hidden="true" focusable="false">
                   <image href={titleArtwork} width="1920" height="1080" />
                 </svg>
               </h1>
@@ -164,12 +163,13 @@ function App() {
                   {id:'playit', label:'playit', Icon:RiGlobalLine},
                   ] : []),
                 ].map(({id,label,Icon}) => <Button key={id} aria-pressed={settingsSection === id} onClick={()=>setSettingsSection(id)} style={{
-                  root:{width:'100%',justifyContent:'flex-start',fontSize:14,paddingVertical:10,paddingHorizontal:13,lineHeight:'20px',color:settingsSection===id?'#263522':'#5c6954',backgroundColor:settingsSection===id?'#faf9f1c4':'transparent'},
+                  root:{width:'100%',justifyContent:'flex-start',fontSize:14,paddingVertical:10,paddingHorizontal:13,lineHeight:'20px',color:settingsSection===id?'#f0f0f0':'#a3a3a3',backgroundColor:settingsSection===id?'#0b0b0b':'transparent'},
                   content:{children:{display:'flex',alignItems:'center',gap:10,lineHeight:'20px'}},
                 }}><Icon size={17} aria-hidden="true"/><span>{label}</span></Button>)}
               </nav>
             </div>
-            <div className="settings-scroll-region scrollable" tabIndex={0} data-sb-edge={32} data-sb-wall={5} aria-label="Settings content">
+            <div className="settings-scroll-viewport">
+              <div className="settings-scroll-region scrollable" tabIndex={0} data-sb-edge={32} data-sb-wall={5} aria-label="Settings content">
               <div className="settings-panels">
             <section className="settings-list settings-panel" hidden={settingsSection !== 'launcher'} aria-label="Launcher settings">
               <AccountSettings engine={engine} onSignIn={() => run(() => bridge.engine.login())} onSignOut={id => run(() => bridge.engine.logout(id))}/>
@@ -209,6 +209,7 @@ function App() {
                 <PackageSettings pack={data.pack} catalog={data.catalog} preview={!bridge} hidden={settingsSection !== 'packages'}/>
                 {serverEdition && <ServerSettings server={server} section={settingsSection} bridge={bridge} client={data} onNotice={setNotice} onLauncherSettings={()=>setSettingsSection('launcher')}/>}
               </div>
+            </div>
             </div>
           </main>
         )}

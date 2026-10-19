@@ -36,8 +36,8 @@ export function EngineProgress({ engine, onCancel }) {
 export function SignInModal({ engine, onOpenBrowser, onCancel }) {
   const authorization = engine.authorization;
   return <Modal open={engine.phase === 'login'} onClose={onCancel}
-    style={{ padding: 0, width: 'min(400px, calc(100vw - 32px))', borderRadius: 16, backgroundColor: '#f8f7ef', border: '1px solid #34412f26' }}
-    overlayStyle={{ backgroundColor: '#18201445', backdropFilter: 'blur(8px)' }}>
+    style={{ padding: 0, width: 'min(400px, calc(100vw - 32px))', borderRadius: 16, backgroundColor: '#0c0c0c', border: '1px solid #ffffff26' }}
+    overlayStyle={{ backgroundColor: '#00000099', backdropFilter: 'blur(8px)' }}>
     <section className="signin-dialog" role="dialog" aria-modal="true" aria-labelledby="signin-title">
       <RiMicrosoftFill size={28} aria-hidden="true"/>
       <h2 id="signin-title">Sign in to Mini</h2>

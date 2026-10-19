@@ -5,7 +5,8 @@ function windowChromeOptions(platform) {
     hasShadow: true,
     resizable: true,
     maximizable: true,
-    ...(platform === "darwin" ? { trafficLightPosition: { x: 20, y: 20 } } : {}),
+    // A 14px button centered at (16, 16) follows the native window corner.
+    ...(platform === "darwin" ? { trafficLightPosition: { x: 9, y: 9 } } : {}),
   };
 }
 

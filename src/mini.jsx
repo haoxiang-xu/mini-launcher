@@ -6,11 +6,20 @@ export { default as Tooltip } from "@mini-ui/BUILTIN_COMPONENTs/tooltip/tooltip.
 export { default as Modal } from "@mini-ui/BUILTIN_COMPONENTs/modal/modal.js";
 export { default as Select } from "@mini-ui/BUILTIN_COMPONENTs/select/select.js";
 
-const base = defaults.light_mode;
+const base = defaults.dark_mode;
 const font = '"Nunito Sans", "Microsoft YaHei", system-ui, sans-serif';
 const theme = {
   ...base,
   font: { ...base.font, fontFamily: font },
+  input: { ...base.input, backgroundColor: '#101010' },
+  textfield: { ...base.textfield, backgroundColor: '#0c0c0c' },
+  select: {
+    ...base.select,
+    backgroundColor: '#101010',
+    dropdown: { ...base.select.dropdown, backgroundColor: '#0c0c0c' },
+  },
+  modal: { ...base.modal, backgroundColor: '#0c0c0c' },
+  tooltip: { ...base.tooltip, backgroundColor: '#141414', color: '#dedede' },
   button: {
     ...base.button,
     root: { ...base.button.root, fontFamily: font },
@@ -18,5 +27,5 @@ const theme = {
 };
 
 export function MiniProvider({ children }) {
-  return <ConfigContext.Provider value={{ theme, onThemeMode: "light_mode" }}><Scrollable />{children}</ConfigContext.Provider>;
+  return <ConfigContext.Provider value={{ theme, onThemeMode: "dark_mode" }}><Scrollable />{children}</ConfigContext.Provider>;
 }

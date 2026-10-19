@@ -5,16 +5,16 @@ function controlStyle(close) {
   return {
     root: {
       width: 40, height: 30, borderRadius: 3, border: "none",
-      backgroundColor: "transparent", color: "#34412f", iconSize: 14,
+      backgroundColor: "transparent", color: "#dedede", iconSize: 14,
       paddingVertical: 0, paddingHorizontal: 0,
       iconOnlyPaddingVertical: 0, iconOnlyPaddingHorizontal: 0,
       WebkitAppRegion: "no-drag",
     },
     background: {
-      hoverBackgroundColor: close ? "rgba(229,57,53,0.92)" : "rgba(45,64,38,0.08)",
-      activeBackgroundColor: close ? "rgba(210,48,43,0.95)" : "rgba(45,64,38,0.14)",
+      hoverBackgroundColor: close ? "rgba(229,57,53,0.92)" : "rgba(255,255,255,0.08)",
+      activeBackgroundColor: close ? "rgba(210,48,43,0.95)" : "rgba(255,255,255,0.14)",
     },
-    state: { hover: { root: { color: close ? "#fff" : "#263522" } } },
+    state: { hover: { root: { color: close ? "#fff" : "#f0f0f0" } } },
   };
 }
 

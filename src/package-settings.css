@@ -1,16 +1,16 @@
-.package-overview { padding:20px 22px; border:1px solid #34412f1a; border-radius:10px; background:#faf9f1c4; }
+.package-overview { padding:20px 22px; border:1px solid #ffffff12; border-radius:10px; background:#0b0b0b; }
 .package-overview > div { display:flex; align-items:center; justify-content:space-between; gap:14px; }
-.package-overview strong { font-size:15px; color:#2f3c29; }
-.package-overview p { margin:10px 0 0; font-size:12px; line-height:1.6; color:#5c6954; }
+.package-overview strong { font-size:15px; color:#eeeeee; }
+.package-overview p { margin:10px 0 0; font-size:12px; line-height:1.6; color:#a3a3a3; }
 .package-group { margin-top:26px; }
-.package-group h3 { display:flex; align-items:center; gap:10px; margin:0 0 12px; font-size:14px; color:#2f3c29; }
-.package-group h3 > span { color:#6a775c; font-size:12px; font-weight:400; }
-.package-list { list-style:none; margin:0; padding:0; border:1px solid #34412f1a; border-radius:10px; background:#faf9f1a8; overflow:hidden; }
+.package-group h3 { display:flex; align-items:center; gap:10px; margin:0 0 12px; font-size:14px; color:#eeeeee; }
+.package-group h3 > span { color:#929292; font-size:12px; font-weight:400; }
+.package-list { list-style:none; margin:0; padding:0; border:1px solid #ffffff12; border-radius:10px; background:#0b0b0b; overflow:hidden; }
 .package-list li { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:15px 21px; }
-.package-list li + li { border-top:1px solid #34412f12; }
+.package-list li + li { border-top:1px solid #ffffff12; }
 .package-list li > div { min-width:0; }
-.package-list strong { display:block; font-size:13px; color:#2f3c29; font-weight:600; }
-.package-list small { display:block; margin-top:4px; font-size:11px; color:#64715c; overflow-wrap:anywhere; }
-.package-badge { flex:none; font-size:11px; color:#5c6954; background:#34412f08; padding:4px 7px; border-radius:4px; white-space:nowrap; }
-.package-note { margin:12px 0 0; font-size:12px; line-height:1.6; color:#64715c; }
+.package-list strong { display:block; font-size:13px; color:#eeeeee; font-weight:600; }
+.package-list small { display:block; margin-top:4px; font-size:11px; color:#858585; overflow-wrap:anywhere; }
+.package-badge { flex:none; font-size:11px; color:#a3a3a3; background:#ffffff08; padding:4px 7px; border-radius:4px; white-space:nowrap; }
+.package-note { margin:12px 0 0; font-size:12px; line-height:1.6; color:#858585; }
 @media(max-width:540px) { .package-list li { align-items:flex-start; flex-direction:column; gap:8px; } }
